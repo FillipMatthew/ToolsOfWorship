@@ -34,10 +34,11 @@ void main(List<String> args) async {
     return;
   }
 
+  print('Connecting to database.');
   final _db = await Db.create(Properties.databaseURI);
   await _db.open();
   if (_db.isConnected) {
-    print('Connected to database.');
+    print('Database connected.');
   }
 
   final _staticHandler =

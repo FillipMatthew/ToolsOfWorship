@@ -12,3 +12,6 @@ pubspec.lock
 # Config
 packages/tools_of_worship_client/lib/config/properties.dart
 packages/tools_of_worship_server/lib/properties.dart
+
+# Deploy files
+packages/tools_of_worship_server/web

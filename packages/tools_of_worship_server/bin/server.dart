@@ -44,10 +44,13 @@ void main(List<String> args) async {
   final _staticHandler =
       createStaticHandler(Properties.publicUri, defaultDocument: 'index.html');
 
+  Cascade cascade =
+      Cascade().add(_staticHandler).add(ToolsOfWorshipApi(_db).handler);
+
   final _handler = Pipeline()
       .addMiddleware(logRequests())
       .addMiddleware(handleCors())
-      .addHandler(_staticHandler);
+      .addHandler(cascade.handler);
 
   // SecurityContext securityContext = SecurityContext()
   //   ..useCertificateChain(

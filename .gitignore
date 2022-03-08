@@ -8,3 +8,6 @@ pubspec.lock
 *.ipr
 *.iws
 .idea/
+
+# Config
+packages/tools_of_worship_server/lib/config.dart

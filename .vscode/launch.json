@@ -5,31 +5,12 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "tools_of_worship_client",
-            "cwd": "packages\\tools_of_worship_client",
-            "request": "launch",
-            "type": "dart"
-        },
-        {
-            "name": "tools_of_worship_client (profile mode)",
-            "cwd": "packages\\tools_of_worship_client",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "profile"
-        },
-        {
-            "name": "tools_of_worship_client (release mode)",
-            "cwd": "packages\\tools_of_worship_client",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "release"
-        },
-        {
             "name": "tools_of_worship_server",
             "cwd": "packages\\tools_of_worship_server",
             "request": "launch",
-            "type": "dart"
-            //"args": ["--enable-vm-service"]
+            "type": "dart",
+            "program": "bin/server.dart",
+            "args": ["--enable-vm-service"]
         }
     ]
 }

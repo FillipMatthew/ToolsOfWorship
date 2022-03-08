@@ -1,32 +1,58 @@
 import 'dart:io';
 
+import 'package:args/args.dart';
+import 'package:mongo_dart/mongo_dart.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart';
 import 'package:shelf_router/shelf_router.dart';
+import 'package:shelf_hotreload/shelf_hotreload.dart';
+import 'package:shelf_static/shelf_static.dart';
+import 'package:tools_of_worship_server/tools_of_worship_server.dart';
 
-// Configure routes.
-final _router = Router()
-  ..get('/', _rootHandler)
-  ..get('/echo/<message>', _echoHandler);
-
-Response _rootHandler(Request req) {
-  return Response.ok('Hello, World!\n');
-}
-
-Response _echoHandler(Request request) {
-  final message = params(request, 'message');
-  return Response.ok('$message\n');
-}
+// ..get('/', _rootHandler);
+// ..get('/oauth2callback', oauth2callback);
+// shelf.Response _rootHandler(shelf.Request request) {
+//   Map<String, String> headers = {'location': '/oauth2callback'};
+//   return shelf.Response(302, headers: headers);
+// }
+// shelf.Response oauth2callback(shelf.Request request) {
+//   return shelf.Response.ok('Redirected!\n');
+// }
 
 void main(List<String> args) async {
-  // Use any available host or container IP (usually `0.0.0.0`).
-  final ip = InternetAddress.anyIPv4;
-
-  // Configure a pipeline that logs requests.
-  final _handler = Pipeline().addMiddleware(logRequests()).addHandler(_router);
-
+  ArgParser parser = ArgParser()..addOption('port', abbr: 'p');
+  ArgResults result = parser.parse(args);
   // For running in containers, we respect the PORT environment variable.
-  final port = int.parse(Platform.environment['PORT'] ?? '8080');
-  final server = await serve(_handler, ip, port);
-  print('Server listening on port ${server.port}');
+  String portStr =
+      result['port'] ?? Platform.environment['PORT'] ?? '8080' /*'443'*/;
+  final port = int.tryParse(portStr);
+
+  if (port == null) {
+    print('Could not parse port value "$portStr" into a number.');
+    // 64: command line usage error.
+    exitCode = 64;
+    return;
+  }
+
+  final _db = await Db.create(Properties.databaseURI);
+  await _db.open();
+  if (_db.isConnected) {
+    print('Connected to database.');
+  }
+
+  final _staticHandler =
+      createStaticHandler(Properties.publicUri, defaultDocument: 'index.html');
+
+  final _handler = Pipeline()
+      .addMiddleware(logRequests())
+      .addMiddleware(handleCors())
+      .addHandler(_staticHandler);
+
+  // SecurityContext securityContext = SecurityContext()
+  //   ..useCertificateChain(
+  //       '${Properties.certificatesUri}/server_chain.pem')
+  //   ..usePrivateKey('${Properties.certificatesUri}/server_key.pem');
+
+  withHotreload(() => serve(_handler, InternetAddress.anyIPv4,
+      port /*, securityContext: securityContext*/));
 }

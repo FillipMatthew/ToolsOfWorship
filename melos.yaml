@@ -1,0 +1,3 @@
+name: tools_of_worship
+packages:
+  - packages/**

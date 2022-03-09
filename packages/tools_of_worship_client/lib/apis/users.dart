@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:tools_of_worship_client/config/properties.dart';
 
 class ApiUsers {
-  static Future<String?> authenticate(
+  static Future<String> authenticate(
       int signInType, String accountIdentifier, String? password) async {
     String body = json.encode({
       'signInType': signInType,
@@ -22,15 +22,9 @@ class ApiUsers {
       body: body,
     );
     if (response.statusCode == 200) {
-      try {
-        dynamic userData = json.decode(response.body);
-
-        return userData['token'];
-      } on FormatException catch (_) {
-        throw Exception('Authentication failed: Invalid response.');
-      }
+      return response.body;
     } else {
-      return null;
+      throw Exception('Authentication failed.');
     }
   }
 }

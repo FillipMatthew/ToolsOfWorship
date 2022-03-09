@@ -1,11 +1,14 @@
+import 'dart:convert';
+
 import 'package:tools_of_worship_client/apis/types/sign_in_type.dart';
 import 'package:tools_of_worship_client/apis/users.dart';
 import 'package:tools_of_worship_client/helpers/google_sign_in.dart';
 
 class AccountAuthentication {
   static String? _authToken;
+  static String? _displayName;
 
-  static Future<String?> signInSilent() async {
+  static Future<bool> signInSilent() async {
     // TODO: Token based auto sign in and if that fails then try Google sign in.
     try {
       GoogleSignInHelper helper = GoogleSignInHelper();
@@ -13,23 +16,23 @@ class AccountAuthentication {
       if (helper.currentUser != null) {
         String? token = await helper.signInToken;
         if (token == null) {
-          return null;
+          return false;
         }
 
         return await _authenticate(SignInType.googleSignIn, token, null);
       }
     } catch (_) {
-      return null;
+      return false;
     }
 
-    return null;
+    return false;
   }
 
-  static Future<String?> signIn(String userName, String password) async {
+  static Future<bool> signIn(String userName, String password) async {
     return _authenticate(SignInType.localUser, userName, password);
   }
 
-  static Future<String?> authenticateWithGoogleSignIn() async {
+  static Future<bool> authenticateWithGoogleSignIn() async {
     GoogleSignInHelper helper = GoogleSignInHelper();
     await helper.signIn();
     if (helper.currentUser != null) {
@@ -38,21 +41,28 @@ class AccountAuthentication {
         throw Exception('Could not retrieve google ID token');
       }
 
-      return await _authenticate(SignInType.googleSignIn, token, null);
+      return _authenticate(SignInType.googleSignIn, token, null);
     }
 
     throw Exception('An error occured while signing in.');
   }
 
-  static Future<String?> _authenticate(
+  static Future<bool> _authenticate(
       int signInType, String accountIdentifier, String? password) async {
-    String? token =
+    String data =
         await ApiUsers.authenticate(signInType, accountIdentifier, password);
-    if (token == null) {
-      return null;
-    } else {
-      _authToken = token;
-      return _authToken;
+
+    try {
+      dynamic userData = json.decode(data);
+      _authToken = userData['token'];
+      _displayName = userData['displayName'];
+      if (_authToken != null) {
+        return true;
+      } else {
+        return false;
+      }
+    } on FormatException catch (_) {
+      throw Exception('Authentication failed: Invalid response.');
     }
   }
 }

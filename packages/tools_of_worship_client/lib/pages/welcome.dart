@@ -22,13 +22,12 @@ class _WelcomePageState extends State<WelcomePage> {
 
   void _loadUser() async {
     try {
-      String? token = await AccountAuthentication.signInSilent();
-      if (token != null) {
+      if (await AccountAuthentication.signInSilent()) {
         Navigator.pushNamedAndRemoveUntil(
             context, Routing.home, (Route<dynamic> route) => false);
         return;
       }
-    } on Exception catch (e, _) {
+    } on Exception catch (e) {
       showError(context, e.toString());
     }
 
@@ -119,16 +118,14 @@ class _WelcomePageState extends State<WelcomePage> {
 
   Future<void> _signInWithGoogle() async {
     try {
-      String? token =
-          await AccountAuthentication.authenticateWithGoogleSignIn();
-      if (token != null) {
+      if (await AccountAuthentication.authenticateWithGoogleSignIn()) {
         Navigator.pushNamedAndRemoveUntil(
             context, Routing.home, (Route<dynamic> route) => false);
         return;
       } else {
         showError(context, 'An error occured while signing in.');
       }
-    } on Exception catch (e, _) {
+    } on Exception catch (e) {
       showError(context, e.toString());
     }
   }

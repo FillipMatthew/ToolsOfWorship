@@ -1,3 +1,49 @@
 name: tools_of_worship
+repository: https://github.com/FillipMatthew/ToolsOfWorship.git
 packages:
   - packages/**
+
+command:
+  version:
+    # Generate commit links in package changelogs.
+    linkToCommits: true
+    # Only allow versioning on main branch.
+    branch: master
+    # Additionally build a changelog at the root of the workspace.
+    workspaceChangelog: true
+
+scripts:
+  # lint:all:
+  #   run: melos run analyze && melos run format
+  #   description: Run all static analysis checks.
+
+  analyze:
+    run: |
+      melos exec -c 5 -- dart analyze . --fatal-infos
+
+  # format:
+  #   run: |
+  #     dart pub global run flutter_plugin_tools format
+
+  build:all:
+    run: |
+      melos run build:client_web --no-select && \
+      melos bootstrap
+    description: Build all packages.
+
+  build:client_web:
+    run: |
+      melos exec -c 6 --fail-fast -- "flutter build web --release"
+    description: Build a client web app
+    select-package:
+      dir-exists:
+        - web
+      scope: "*tools_of_worship_client*"
+
+  clean:deep:
+    run: git clean -x -d -f -q
+    description: Clean things very deeply, can be used to establish "pristine checkout" status.
+
+  # Additional cleanup lifecycle script, executed when `melos clean` is run.
+  postclean: >
+    melos exec -c 6 -- "flutter clean"

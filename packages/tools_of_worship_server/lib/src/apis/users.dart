@@ -9,6 +9,7 @@ import 'package:tools_of_worship_server/src/helpers/google_sign_in.dart';
 import 'package:tools_of_worship_server/src/types/sign_in_type.dart';
 import 'package:tools_of_worship_server/src/types/user.dart';
 import 'package:tools_of_worship_server/src/helpers/account_authentication.dart';
+import 'package:xid/xid.dart';
 
 class ApiUsers {
   final DbCollection _userConnectionsCollection;
@@ -42,14 +43,15 @@ class ApiUsers {
       return Response.forbidden('Invalid authentication data.');
     }
 
-    if (user == null || !user.isValid) {
+    if (user == null) {
       return Response.forbidden('Authentication failed.');
     }
 
     final String token = AccountAuthentication.signToken(user.id);
 
     // Send token back to the user
-    return Response.ok(json.encode({'token': token}),
+    return Response.ok(
+        json.encode({'token': token, 'displayName': user.displayName}),
         headers: {HttpHeaders.contentTypeHeader: ContentType.json.mimeType});
   }
 
@@ -59,8 +61,7 @@ class ApiUsers {
       return null;
     }
 
-    if (signInType == SignInType.none ||
-        (signInType == SignInType.localUser && password == null)) {
+    if (signInType == SignInType.localUser && password == null) {
       return null;
     }
 
@@ -78,8 +79,37 @@ class ApiUsers {
 
       if (accountData == null || accountData['userID'] == null) {
         // The user does not yet exist so create it.
-// TODO: Add a new user.
-        return null;
+        String userID = Xid.string();
+
+        WriteResult result = await _userConnectionsCollection.insertOne({
+          'userID': userID,
+          'signInType': signInType,
+          'accountIdentifier': googleSignInID,
+          'password': password,
+        });
+
+        if (!result.isSuccess) {
+          print('Failed to insert user connection into database.');
+          return null;
+        }
+
+        result = await _usersCollection.insertOne({
+          'id': userID,
+          'displayName': '',
+        });
+
+        if (!result.isSuccess) {
+          print('Failed to insert user into database.');
+          await _userConnectionsCollection.remove(where.eq('userID', userID));
+          return null;
+        }
+
+        var userData = await _usersCollection.findOne(where.eq('id', userID));
+        if (userData == null) {
+          return null;
+        }
+
+        return User.fromJson(userData);
       }
 
       var userData =
@@ -89,7 +119,7 @@ class ApiUsers {
         return null;
       }
 
-      return User.fromMap(userData);
+      return User.fromJson(userData);
     }
 
     return null;

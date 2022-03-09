@@ -15,6 +15,7 @@ dependencies:
   shelf_static: ^1.1.0
   shelf_hotreload: ^1.1.0
   dart_jsonwebtoken: ^2.4.1
+  xid: ^1.0.7
 
 dev_dependencies:
   lints: ^1.0.0

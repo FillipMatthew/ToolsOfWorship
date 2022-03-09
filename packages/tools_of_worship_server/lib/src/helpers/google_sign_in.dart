@@ -39,7 +39,8 @@ class GoogleSignIn {
           return null;
         }
 
-        print('Payload: ${jwt.payload}');
+        // print('Payload: ${jwt.payload}');
+        print('Account validated.');
         return jwt.subject;
       } on JWTExpiredError {
         print('JWT Google sign in token expired.');

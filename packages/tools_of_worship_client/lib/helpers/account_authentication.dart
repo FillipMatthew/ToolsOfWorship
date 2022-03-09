@@ -9,16 +9,15 @@ class AccountAuthentication {
     // TODO: Token based auto sign in and if that fails then try Google sign in.
     try {
       GoogleSignInHelper helper = GoogleSignInHelper();
-      await helper.autoSignIn().then((value) async {
-        if (helper.currentUser != null) {
-          String? token = await helper.signInToken;
-          if (token == null) {
-            return null;
-          }
-
-          return _authenticate(SignInType.googleSignIn, token, null);
+      await helper.autoSignIn();
+      if (helper.currentUser != null) {
+        String? token = await helper.signInToken;
+        if (token == null) {
+          return null;
         }
-      });
+
+        return await _authenticate(SignInType.googleSignIn, token, null);
+      }
     } catch (_) {
       return null;
     }
@@ -32,19 +31,17 @@ class AccountAuthentication {
 
   static Future<String?> authenticateWithGoogleSignIn() async {
     GoogleSignInHelper helper = GoogleSignInHelper();
-    helper.signIn().then((value) async {
-      if (helper.currentUser != null) {
-        String? token = await helper.signInToken;
-        if (token == null) {
-          throw Exception('Could not retrieve google ID token');
-        }
-        return _authenticate(SignInType.googleSignIn, token, null);
-      } else {
-        throw Exception('An error occured while signing in.');
+    await helper.signIn();
+    if (helper.currentUser != null) {
+      String? token = await helper.signInToken;
+      if (token == null) {
+        throw Exception('Could not retrieve google ID token');
       }
-    });
 
-    return null;
+      return await _authenticate(SignInType.googleSignIn, token, null);
+    }
+
+    throw Exception('An error occured while signing in.');
   }
 
   static Future<String?> _authenticate(

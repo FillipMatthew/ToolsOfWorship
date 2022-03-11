@@ -47,10 +47,16 @@ class AccountAuthentication {
     throw Exception('An error occured while signing in.');
   }
 
+  static Future<void> signOut() async {
+    GoogleSignInHelper helper = GoogleSignInHelper();
+    await helper.signOut();
+    _authToken = null;
+    _displayName = null;
+  }
+
   static Future<bool> _authenticate(
-      int signInType, String accountIdentifier, String? password) async {
-    String data =
-        await ApiUsers.authenticate(signInType, accountIdentifier, password);
+      int signInType, String accountId, String? password) async {
+    String data = await ApiUsers.authenticate(signInType, accountId, password);
 
     try {
       dynamic userData = json.decode(data);

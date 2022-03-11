@@ -7,10 +7,10 @@ import 'package:tools_of_worship_client/config/properties.dart';
 
 class ApiUsers {
   static Future<String> authenticate(
-      int signInType, String accountIdentifier, String? password) async {
+      int signInType, String accountId, String? password) async {
     String body = json.encode({
       'signInType': signInType,
-      'accountIdentifier': accountIdentifier,
+      'accountId': accountId,
       'password': password
     });
     final http.Response response = await http.post(

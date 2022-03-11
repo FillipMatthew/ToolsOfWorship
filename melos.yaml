@@ -19,7 +19,7 @@ scripts:
 
   analyze:
     run: |
-      melos exec -c 5 -- dart analyze . --fatal-infos
+      melos exec -c 2 -- dart analyze . --fatal-infos
 
   # format:
   #   run: |
@@ -33,7 +33,7 @@ scripts:
 
   build:client_web:
     run: |
-      melos exec -c 6 --fail-fast -- "flutter build web --release"
+      melos exec -c 2 --fail-fast -- "flutter build web --release"
     description: Build a client web app
     select-package:
       dir-exists:
@@ -46,4 +46,4 @@ scripts:
 
   # Additional cleanup lifecycle script, executed when `melos clean` is run.
   postclean: >
-    melos exec -c 6 -- "flutter clean"
+    melos exec -c 2 -- "flutter clean"

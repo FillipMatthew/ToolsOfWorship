@@ -37,8 +37,8 @@ class ApiUsers {
     try {
       dynamic userData = json.decode(payload);
 
-      user = await _signIn(userData['signInType'],
-          userData['accountIdentifier'], userData['password']);
+      user = await _signIn(
+          userData['signInType'], userData['accountId'], userData['password']);
     } on FormatException catch (_) {
       return Response.forbidden('Invalid authentication data.');
     }
@@ -56,8 +56,8 @@ class ApiUsers {
   }
 
   Future<User?> _signIn(
-      int? signInType, String? accountIdentifier, String? password) async {
-    if (signInType == null || accountIdentifier == null) {
+      int? signInType, String? accountId, String? password) async {
+    if (signInType == null || accountId == null) {
       return null;
     }
 
@@ -67,15 +67,14 @@ class ApiUsers {
 
     if (signInType == SignInType.localUser) {
     } else if (signInType == SignInType.googleSignIn) {
-      String? googleSignInID =
-          await GoogleSignIn.authenticateToken(accountIdentifier);
+      String? googleSignInID = await GoogleSignIn.authenticateToken(accountId);
       if (googleSignInID == null) {
         return null;
       }
 
       var accountData = await _userConnectionsCollection.findOne(where
           .eq('signInType', signInType)
-          .and(where.eq('accountIdentifier', googleSignInID)));
+          .and(where.eq('accountId', googleSignInID)));
 
       if (accountData == null || accountData['userID'] == null) {
         // The user does not yet exist so create it.
@@ -84,7 +83,7 @@ class ApiUsers {
         WriteResult result = await _userConnectionsCollection.insertOne({
           'userID': userID,
           'signInType': signInType,
-          'accountIdentifier': googleSignInID,
+          'accountId': googleSignInID,
           'password': password,
         });
 

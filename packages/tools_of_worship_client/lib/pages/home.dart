@@ -10,59 +10,55 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: _getTitle(),
-      ),
-      body: _getContent(),
-    );
-  }
-
-  Widget _getTitle() {
-    return LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints constraints) {
-        if (constraints.maxWidth >= 1200) {
-          return Center(
-            child: SizedBox(
-              width: 1200.0,
-              child: Row(
-                children: [
-                  const Text('Tools of Worship'),
-                  const Spacer(flex: 2),
-                  IconButton(
-                    icon: const Icon(Icons.logout),
-                    onPressed: () async {
-                      await AccountAuthentication.signOut();
-                      Navigator.pushNamedAndRemoveUntil(context, Routing.root,
-                          (Route<dynamic> route) => false);
-                    },
-                  ),
-                ],
+      body: LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+          if (constraints.maxWidth > 1200.0) {
+            return Center(
+              child: SizedBox(
+                width: 1200.0,
+                child: _getContent(context),
               ),
-            ),
-          );
-        } else {
-          return const Text('Tools of Worship');
-        }
-      },
+            );
+          } else {
+            return Center(child: _getContent(context));
+          }
+        },
+      ),
     );
   }
 
-  Widget _getContent() {
-    return LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints constraints) {
-        //if (constraints.maxWidth > 1200) {
-        //else if (constraints.maxWidth > 900) {
-        if (constraints.maxWidth > 600) {
-          return const Center(
-            child: SizedBox(
-              width: 600.0,
-              child: FeedWidget(),
+  Widget _getContent(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        AppBar(
+          title: const Text('Tools of Worship'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.logout),
+              onPressed: () async {
+                await AccountAuthentication.signOut();
+                Navigator.pushNamedAndRemoveUntil(
+                    context, Routing.root, (Route<dynamic> route) => false);
+              },
             ),
-          );
-        } else {
-          return const FeedWidget();
-        }
-      },
+          ],
+        ),
+        Expanded(
+          child: LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints constraints) {
+              if (constraints.maxWidth > 600.0) {
+                return const SizedBox(
+                  width: 600.0,
+                  child: FeedWidget(),
+                );
+              } else {
+                return const FeedWidget();
+              }
+            },
+          ),
+        ),
+      ],
     );
   }
 }

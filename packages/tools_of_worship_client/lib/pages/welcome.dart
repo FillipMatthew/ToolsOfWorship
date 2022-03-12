@@ -44,7 +44,7 @@ class _WelcomePageState extends State<WelcomePage> {
       // Body section
       body: LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
-          if (constraints.maxWidth > 600) {
+          if (constraints.maxWidth > 600.0) {
             return Center(
               child: SizedBox(
                 width: 600.0,
@@ -84,8 +84,8 @@ class _WelcomePageState extends State<WelcomePage> {
       return Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(
-            minHeight: 200,
-            maxHeight: 400,
+            minHeight: 200.0,
+            maxHeight: 400.0,
           ),
           child: Card(
             elevation: 4.0,
@@ -167,7 +167,6 @@ class _WelcomePageState extends State<WelcomePage> {
       if (await AccountAuthentication.authenticateWithGoogleSignIn()) {
         Navigator.pushNamedAndRemoveUntil(
             context, Routing.home, (Route<dynamic> route) => false);
-        return;
       } else {
         showError(context, 'An error occured while signing in.');
       }

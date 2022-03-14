@@ -11,7 +11,7 @@ import 'package:tools_of_worship_server/properties.dart';
 
 class GoogleSignIn {
   static final List<String> _googlePublicKeys = <String>[];
-  static DateTime _keyExpiration = DateTime.now();
+  static DateTime _keyExpiration = DateTime.now().toUtc();
 
   static Future<String?> authenticateToken(String token) async {
     if (_googlePublicKeys.isEmpty || _isExpired()) {
@@ -29,7 +29,7 @@ class GoogleSignIn {
           token,
           RSAPublicKey(key),
           //issuer: 'accounts.google.com',
-          audience: Audience([Properties.googleSignInClientID]),
+          audience: Audience([Properties.googleSignInClientId]),
         );
 
         // Manually check the issuer since we have multiple to compare to.
@@ -54,7 +54,7 @@ class GoogleSignIn {
 
   static _updateGooglePublicKey() async {
     bool hasSetExpiration = false;
-    _keyExpiration = DateTime.now();
+    _keyExpiration = DateTime.now().toUtc();
     _googlePublicKeys.clear();
     final http.Response response =
         await http.get(Uri.parse('https://www.googleapis.com/oauth2/v1/certs'));
@@ -68,7 +68,7 @@ class GoogleSignIn {
             int? maxAgeSeconds = int.tryParse(part.substring(match.end).trim());
             if (maxAgeSeconds != null) {
               _keyExpiration =
-                  DateTime.now().add(Duration(seconds: maxAgeSeconds));
+                  DateTime.now().toUtc().add(Duration(seconds: maxAgeSeconds));
               hasSetExpiration = true;
             }
           }
@@ -76,7 +76,7 @@ class GoogleSignIn {
       }
 
       if (!hasSetExpiration) {
-        _keyExpiration = DateTime.now().add(Duration(minutes: 5));
+        _keyExpiration = DateTime.now().toUtc().add(Duration(minutes: 5));
       }
 
       try {
@@ -101,7 +101,7 @@ class GoogleSignIn {
   }
 
   static bool _isExpired() {
-    if (DateTime.now().isAfter(_keyExpiration)) {
+    if (DateTime.now().toUtc().isAfter(_keyExpiration)) {
       return true;
     } else {
       return false;

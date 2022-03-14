@@ -67,23 +67,23 @@ class ApiUsers {
 
     if (signInType == SignInType.localUser) {
     } else if (signInType == SignInType.googleSignIn) {
-      String? googleSignInID = await GoogleSignIn.authenticateToken(accountId);
-      if (googleSignInID == null) {
+      String? googleSignInId = await GoogleSignIn.authenticateToken(accountId);
+      if (googleSignInId == null) {
         return null;
       }
 
       var accountData = await _userConnectionsCollection.findOne(where
           .eq('signInType', signInType)
-          .and(where.eq('accountId', googleSignInID)));
+          .and(where.eq('accountId', googleSignInId)));
 
-      if (accountData == null || accountData['userID'] == null) {
+      if (accountData == null || accountData['userId'] == null) {
         // The user does not yet exist so create it.
-        String userID = Xid.string();
+        String userId = Xid.string();
 
         WriteResult result = await _userConnectionsCollection.insertOne({
-          'userID': userID,
+          'userId': userId,
           'signInType': signInType,
-          'accountId': googleSignInID,
+          'accountId': googleSignInId,
           'password': password,
         });
 
@@ -93,17 +93,17 @@ class ApiUsers {
         }
 
         result = await _usersCollection.insertOne({
-          'id': userID,
+          'id': userId,
           'displayName': '',
         });
 
         if (!result.isSuccess) {
           print('Failed to insert user into database.');
-          await _userConnectionsCollection.remove(where.eq('userID', userID));
+          await _userConnectionsCollection.remove(where.eq('userId', userId));
           return null;
         }
 
-        var userData = await _usersCollection.findOne(where.eq('id', userID));
+        var userData = await _usersCollection.findOne(where.eq('id', userId));
         if (userData == null) {
           return null;
         }
@@ -112,7 +112,7 @@ class ApiUsers {
       }
 
       var userData =
-          await _usersCollection.findOne(where.eq('id', accountData['userID']));
+          await _usersCollection.findOne(where.eq('id', accountData['userId']));
 
       if (userData == null) {
         return null;

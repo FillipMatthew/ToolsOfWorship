@@ -4,7 +4,6 @@ import 'package:args/args.dart';
 import 'package:mongo_dart/mongo_dart.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart';
-import 'package:shelf_router/shelf_router.dart';
 import 'package:shelf_hotreload/shelf_hotreload.dart';
 import 'package:shelf_static/shelf_static.dart';
 import 'package:tools_of_worship_server/tools_of_worship_server.dart';

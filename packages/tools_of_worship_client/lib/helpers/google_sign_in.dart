@@ -2,7 +2,8 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 class GoogleSignInHelper {
   final GoogleSignIn _googleSignIn = GoogleSignIn(
-    clientId: '390448088945-mbbpdipsvt5ff6u3rv4ft6humf3dqm4s',
+    clientId:
+        '390448088945-mbbpdipsvt5ff6u3rv4ft6humf3dqm4s.apps.googleusercontent.com',
     scopes: [
       // Google OAuth2 API, v2
       // 'openid',

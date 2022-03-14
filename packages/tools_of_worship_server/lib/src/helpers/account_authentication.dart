@@ -57,17 +57,19 @@ class AccountAuthentication {
     return (Handler innerHandler) {
       return (Request request) async {
         String? subject = _authenticateRequest(request);
-        final updatedRequest = request.change(
-          context: {'authDetails': subject},
-        );
-        return await innerHandler(updatedRequest);
+        if (subject != null) {
+          return await innerHandler(
+              request.change(context: {'authDetails': subject}));
+        }
+
+        return await innerHandler(request);
       };
     };
   }
 
   // Returns the authenticated token subject if the request is authorised.
   static String? _authenticateRequest(Request request) {
-    print('Invalid auth token');
+    print('_authenticate request.');
     String? authHeader = request.headers[HttpHeaders.authorizationHeader];
     if (authHeader == null) {
       return null;

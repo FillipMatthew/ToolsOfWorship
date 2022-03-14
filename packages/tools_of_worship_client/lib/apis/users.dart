@@ -13,14 +13,13 @@ class ApiUsers {
       'accountId': accountId,
       'password': password
     });
+
     final http.Response response = await http.post(
       Uri.parse('${Properties.apiHost}/apis/Users/Authenticate'),
-      headers: {
-        HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
-        // 'Content-Length': '${body.length}'
-      },
+      headers: {HttpHeaders.contentTypeHeader: ContentType.json.mimeType},
       body: body,
     );
+
     if (response.statusCode == 200) {
       return response.body;
     } else {

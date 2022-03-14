@@ -1,21 +1,3 @@
-class FeedEntry {
-  final String _heading;
-  final String _author;
-  final String _article;
-  final String _feedName;
-
-  FeedEntry(String heading, String author, String article, String feedName)
-      : _heading = heading,
-        _author = author,
-        _article = article,
-        _feedName = feedName;
-
-  String get headng => _heading;
-  String get author => _author;
-  String get article => _article;
-  String get feedName => _feedName;
-}
-
 class Prayer {
   final String _heading;
   final String _author;

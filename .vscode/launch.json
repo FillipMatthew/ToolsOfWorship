@@ -5,6 +5,22 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "tools_of_worship_client",
+            "cwd": "packages\\tools_of_worship_client",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "args": ["-d", "web-server", "--web-hostname", "localhost", "--web-port", "8000"]
+        },
+        {
+            "name": "tools_of_worship_client(edge)",
+            "cwd": "packages\\tools_of_worship_client",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "args": ["-d", "edge", "--web-hostname", "localhost", "--web-port", "8000"]
+        },
+        {
             "name": "tools_of_worship_server",
             "cwd": "packages\\tools_of_worship_server",
             "request": "launch",

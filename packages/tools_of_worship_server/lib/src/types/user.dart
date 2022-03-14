@@ -7,14 +7,6 @@ class User {
     _displayName = userData['displayName'] ?? '';
   }
 
-  // User.fromJson(String jsonData) {
-  //   // try {
-  //   //   dynamic userData = json.decode(jsonData);
-  //   // } on FormatException catch (_) {
-  //   //   ;
-  //   // }
-  // }
-
   String get id => _id;
 
   String get displayName => _displayName;

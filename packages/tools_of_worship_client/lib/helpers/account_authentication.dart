@@ -8,6 +8,9 @@ class AccountAuthentication {
   static String? _authToken;
   static String? _displayName;
 
+  static String get authHeaderString =>
+      _authToken != null ? 'Bearer $_authToken' : '';
+
   static Future<bool> signInSilent() async {
     // TODO: Token based auto sign in and if that fails then try Google sign in.
     try {
@@ -34,7 +37,7 @@ class AccountAuthentication {
 
   static Future<bool> authenticateWithGoogleSignIn() async {
     GoogleSignInHelper helper = GoogleSignInHelper();
-    await helper.signIn();
+    String result = await helper.signIn();
     if (helper.currentUser != null) {
       String? token = await helper.signInToken;
       if (token == null) {

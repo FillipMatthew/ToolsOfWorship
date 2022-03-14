@@ -133,7 +133,7 @@ class ApiFeed {
 
       if (fellowshipId != null && fellowshipId.isNotEmpty) {
         WriteResult result = await _postsCollection.insertOne({
-          'id': Xid().toString(),
+          'id': Xid.string(),
           'autherId': userId,
           'fellowshipId': fellowshipId,
           'dateTime': DateTime.now().toUtc().toIso8601String(),
@@ -146,7 +146,7 @@ class ApiFeed {
         }
       } else if (circleId != null && circleId.isNotEmpty) {
         WriteResult result = await _postsCollection.insertOne({
-          'id': Xid().toString(),
+          'id': Xid.string(),
           'autherId': userId,
           'circleId': circleId,
           'dateTime': DateTime.now().toUtc().toIso8601String(),

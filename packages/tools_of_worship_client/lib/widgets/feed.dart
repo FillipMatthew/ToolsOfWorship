@@ -33,16 +33,18 @@ class _FeedWidgetState extends State<FeedWidget> {
           ),
         ),
         Expanded(
-          child: RefreshIndicator(
-            onRefresh: _onRefresh,
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: posts.length,
-              itemBuilder: (BuildContext context, int index) {
-                return FeedEntryWidget(posts[index]);
-              },
-            ),
-          ),
+          child: posts.isEmpty
+              ? const Center(child: CircularProgressIndicator())
+              : RefreshIndicator(
+                  onRefresh: _onRefresh,
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: posts.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return FeedEntryWidget(posts[index]);
+                    },
+                  ),
+                ),
         ),
       ],
     );

@@ -14,13 +14,19 @@ class ApiFeed {
   final DbCollection _circlesCollection;
   final DbCollection _circleMembersCollection;
 
-  ApiFeed(Db db)
-      : _usersCollection = db.collection('Users'),
-        _postsCollection = db.collection('Posts'),
-        _fellowshipsCollection = db.collection('Fellowships'),
-        _fellowshipMembersCollection = db.collection('FellowshipMembers'),
-        _circlesCollection = db.collection('Circles'),
-        _circleMembersCollection = db.collection('CircleMembers');
+  ApiFeed(
+      DbCollection users,
+      DbCollection posts,
+      DbCollection fellowships,
+      DbCollection fellowshipMembers,
+      DbCollection circles,
+      DbCollection circleMembers)
+      : _usersCollection = users,
+        _postsCollection = posts,
+        _fellowshipsCollection = fellowships,
+        _fellowshipMembersCollection = fellowshipMembers,
+        _circlesCollection = circles,
+        _circleMembersCollection = circleMembers;
 
   Router get router {
     Router router = Router();
@@ -69,38 +75,41 @@ class ApiFeed {
       circleNames[id] = circlesEntry?['name'];
     }
 
+    var whereClause = <String, dynamic>{};
+    if (fellowshipIds.isNotEmpty) {
+      whereClause['fellowshipId'] = {r'$in': fellowshipIds};
+    }
+
+    if (circleIds.isNotEmpty) {
+      whereClause['circleId'] = {r'$in': circleIds};
+    }
     List<Map<String, dynamic>> posts = <Map<String, dynamic>>[];
-    var postsResults = await _postsCollection
-        .find(where.raw(
-          {
-            "fellowshipId": {r'$in': fellowshipIds},
-            "circleId": {r'$in': circleIds},
-          },
-        ))
-        .toList();
+    if (whereClause.isNotEmpty) {
+      var postsResults = await _postsCollection.find(whereClause).toList();
 
-    for (var item in postsResults) {
-      Map<String, dynamic> post = <String, dynamic>{};
-      post['id'] = item['id'];
-      post['heading'] = item['heading'];
-      post['auther'] = await _getUserName(item['autherId']);
-      post['dateTime'] = item['dateTime'];
-      post['article'] = item['article'];
+      for (var item in postsResults) {
+        Map<String, dynamic> post = <String, dynamic>{};
+        post['id'] = item['id'];
+        post['heading'] = item['heading'];
+        post['author'] = await _getUserName(item['authorId']);
+        post['dateTime'] = item['dateTime'];
+        post['article'] = item['article'];
 
-      String feedName = '';
-      String? fellowshipId = item['fellowshipId'];
-      String? circleId = item['circleId'];
-      if (fellowshipId != null) {
-        feedName += fellowshipNames[fellowshipId] ?? '';
+        String feedName = '';
+        String? fellowshipId = item['fellowshipId'];
+        String? circleId = item['circleId'];
+        if (fellowshipId != null) {
+          feedName += fellowshipNames[fellowshipId] ?? '';
+        }
+
+        if (circleId != null) {
+          feedName += '(${circleNames[fellowshipId]})';
+        }
+
+        post['feedName'] = feedName;
+
+        posts.add(post);
       }
-
-      if (circleId != null) {
-        feedName += '(${circleNames[fellowshipId]})';
-      }
-
-      post['feedName'] = feedName;
-
-      posts.add(post);
     }
 
     return Response.ok(
@@ -134,7 +143,7 @@ class ApiFeed {
       if (fellowshipId != null && fellowshipId.isNotEmpty) {
         WriteResult result = await _postsCollection.insertOne({
           'id': Xid.string(),
-          'autherId': userId,
+          'authorId': userId,
           'fellowshipId': fellowshipId,
           'dateTime': DateTime.now().toUtc().toIso8601String(),
           'heading': heading,
@@ -147,7 +156,7 @@ class ApiFeed {
       } else if (circleId != null && circleId.isNotEmpty) {
         WriteResult result = await _postsCollection.insertOne({
           'id': Xid.string(),
-          'autherId': userId,
+          'authorId': userId,
           'circleId': circleId,
           'dateTime': DateTime.now().toUtc().toIso8601String(),
           'heading': heading,

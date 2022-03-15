@@ -33,9 +33,10 @@ scripts:
 
   build:client_web:
     run: |
-      melos exec -c 2 --fail-fast -- "flutter build web --release"
+      melos exec -c 1 --fail-fast -- "flutter build web --release" && rmdir /s /Q "./packages/tools_of_worship_server/web/public" && Xcopy "./packages/tools_of_worship_client/build/web" "./packages/tools_of_worship_server/web/public" /E /H /C /I
     description: Build a client web app
     select-package:
+      flutter: true
       dir-exists:
         - web
       scope: "*tools_of_worship_client*"

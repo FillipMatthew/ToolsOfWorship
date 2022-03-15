@@ -11,9 +11,9 @@ class ApiFellowships {
   final DbCollection _fellowshipsCollection;
   final DbCollection _fellowshipMembersCollection;
 
-  ApiFellowships(Db db)
-      : _fellowshipsCollection = db.collection('Fellowships'),
-        _fellowshipMembersCollection = db.collection('FellowshipMembers');
+  ApiFellowships(DbCollection fellowships, DbCollection fellowshipMemebers)
+      : _fellowshipsCollection = fellowships,
+        _fellowshipMembersCollection = fellowshipMemebers;
 
   Router get router {
     Router router = Router();

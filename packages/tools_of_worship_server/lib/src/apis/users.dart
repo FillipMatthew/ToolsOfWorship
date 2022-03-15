@@ -15,9 +15,9 @@ class ApiUsers {
   final DbCollection _userConnectionsCollection;
   final DbCollection _usersCollection;
 
-  ApiUsers(Db db)
-      : _userConnectionsCollection = db.collection('UserConnections'),
-        _usersCollection = db.collection('Users');
+  ApiUsers(DbCollection userConnections, DbCollection users)
+      : _userConnectionsCollection = userConnections,
+        _usersCollection = users;
 
   Router get router {
     Router router = Router();
@@ -72,9 +72,10 @@ class ApiUsers {
         return null;
       }
 
-      var accountData = await _userConnectionsCollection.findOne(where
-          .eq('signInType', signInType)
-          .and(where.eq('accountId', googleSignInId)));
+      Map<String, dynamic>? accountData =
+          await _userConnectionsCollection.findOne(where
+              .eq('signInType', signInType)
+              .and(where.eq('accountId', googleSignInId)));
 
       if (accountData == null || accountData['userId'] == null) {
         // The user does not yet exist so create it.

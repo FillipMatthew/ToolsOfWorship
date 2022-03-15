@@ -35,6 +35,8 @@ class AccountAuthentication {
       print('JWT expired.');
     } on JWTError catch (ex) {
       print(ex.message); // Invalid signature
+    } on FormatException catch (_) {
+      print('Invalid token.');
     }
 
     return null;
@@ -56,13 +58,13 @@ class AccountAuthentication {
   static Middleware handleAuth() {
     return (Handler innerHandler) {
       return (Request request) async {
-        String? subject = _authenticateRequest(request);
-        if (subject != null) {
-          return await innerHandler(
-              request.change(context: {'authDetails': subject}));
-        }
+        final updatedRequest = request.change(
+          context: {
+            'authDetails': _authenticateRequest(request),
+          },
+        );
 
-        return await innerHandler(request);
+        return await innerHandler(updatedRequest);
       };
     };
   }

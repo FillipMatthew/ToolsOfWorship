@@ -5,6 +5,7 @@ import 'package:mongo_dart/mongo_dart.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart';
 import 'package:shelf_hotreload/shelf_hotreload.dart';
+import 'package:shelf_router/shelf_router.dart';
 import 'package:shelf_static/shelf_static.dart';
 import 'package:tools_of_worship_server/tools_of_worship_server.dart';
 
@@ -40,11 +41,14 @@ void main(List<String> args) async {
     print('Database connected.');
   }
 
-  final _staticHandler =
-      createStaticHandler(Properties.publicUri, defaultDocument: 'index.html');
+  Router router = Router()
+    ..mount(
+      '/',
+      createStaticHandler('${Properties.publicUri}/app',
+          defaultDocument: 'index.html'),
+    );
 
-  Cascade cascade =
-      Cascade().add(_staticHandler).add(ToolsOfWorshipApi(_db).handler);
+  Cascade cascade = Cascade().add(router).add(ToolsOfWorshipApi(_db).handler);
 
   final _handler = Pipeline()
       .addMiddleware(logRequests())

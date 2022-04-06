@@ -59,19 +59,15 @@ class AccountAuthentication {
 
   static Future<bool> _authenticate(
       int signInType, String accountId, String? password) async {
-    String data = await ApiUsers.authenticate(signInType, accountId, password);
+    Map<String, String> userData =
+        await ApiUsers.authenticate(signInType, accountId, password);
 
-    try {
-      dynamic userData = json.decode(data);
-      _authToken = userData['token'];
-      _displayName = userData['displayName'];
-      if (_authToken != null) {
-        return true;
-      } else {
-        return false;
-      }
-    } on FormatException catch (_) {
-      throw Exception('Authentication failed: Invalid response.');
+    _authToken = userData['token'];
+    _displayName = userData['displayName'];
+    if (_authToken != null) {
+      return true;
+    } else {
+      return false;
     }
   }
 }

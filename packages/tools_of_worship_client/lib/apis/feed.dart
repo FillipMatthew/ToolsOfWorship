@@ -17,24 +17,18 @@ class ApiFeed {
     );
 
     if (response.statusCode == HttpStatus.ok) {
-      try {
-        List<Map<String, dynamic>> data = json.decode(response.body);
-
         List<FeedPost> feedList = [];
-        for (Map<String, dynamic> item in data) {
+        for (Map<String, dynamic> item in json.decode(response.body)) {
           try {
             feedList.add(FeedPost.fromJson(item));
           } catch (_) {}
         }
 
         return feedList;
-      } on FormatException catch (_) {
-        throw Exception('Invalid data.');
-      }
     } else if (response.statusCode == HttpStatus.forbidden) {
-      throw Exception('Unauthorised.');
+      throw Exception('Unauthorised');
     }
 
-    throw Exception('Unexpected error.');
+    throw Exception('Unexpected error');
   }
 }

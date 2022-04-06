@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:tools_of_worship_client/config/properties.dart';
 
 class ApiUsers {
-  static Future<String> authenticate(
+  static Future<Map<String, String>> authenticate(
       int signInType, String accountId, String? password) async {
     String body = json.encode({
       'signInType': signInType,
@@ -21,9 +21,11 @@ class ApiUsers {
     );
 
     if (response.statusCode == 200) {
-      return response.body;
-    } else {
+      return json.decode(response.body);
+    } else if (response.statusCode == HttpStatus.forbidden) {
       throw Exception('Authentication failed.');
     }
+
+    throw Exception('Unexpected error');
   }
 }

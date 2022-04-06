@@ -46,12 +46,11 @@ class ApiFeed {
 
     Map<String, String> fellowshipNames = <String, String>{};
 
-    List<String> fellowshipIds = <String>[];
-    var fellowshipMembersResult = await _fellowshipMembersCollection
-        .find(where.eq('userId', userId))
-        .toList();
+    List<String> fellowshipIds = [];
+    var fellowshipMembersResult = _fellowshipMembersCollection
+        .find(where.eq('userId', userId));
 
-    for (var item in fellowshipMembersResult) {
+    await for (var item in fellowshipMembersResult) {
       String id = item['fellowshipId'];
       fellowshipIds.add(id);
 
@@ -63,11 +62,10 @@ class ApiFeed {
     Map<String, String> circleNames = <String, String>{};
 
     List<String> circleIds = <String>[];
-    var circleMembersResult = await _circleMembersCollection
-        .find(where.eq('userId', userId))
-        .toList();
+    var circleMembersResult = _circleMembersCollection
+        .find(where.eq('userId', userId));
 
-    for (var item in circleMembersResult) {
+    await for (var item in circleMembersResult) {
       String id = item['circleId'];
       circleIds.add(id);
 
@@ -85,9 +83,10 @@ class ApiFeed {
     }
     List<Map<String, dynamic>> posts = <Map<String, dynamic>>[];
     if (whereClause.isNotEmpty) {
-      var postsResults = await _postsCollection.find(whereClause).toList();
+      var postsResults = _postsCollection
+          .find(where.raw(whereClause).sortBy('dateTime', descending: true));
 
-      for (var item in postsResults) {
+      await for (var item in postsResults) {
         Map<String, dynamic> post = <String, dynamic>{};
         post['id'] = item['id'];
         post['heading'] = item['heading'];

@@ -7,7 +7,6 @@ import 'package:tools_of_worship_server/src/apis/users.dart';
 import 'package:tools_of_worship_server/src/helpers/account_authentication.dart';
 
 class ToolsOfWorshipApi {
-  final Db _db;
   final DbCollection _userConnectionsCollection;
   final DbCollection _usersCollection;
   final DbCollection _postsCollection;
@@ -17,8 +16,7 @@ class ToolsOfWorshipApi {
   final DbCollection _circleMembersCollection;
 
   ToolsOfWorshipApi(Db db)
-      : _db = db,
-        _userConnectionsCollection = db.collection('UserConnections'),
+      : _userConnectionsCollection = db.collection('UserConnections'),
         _usersCollection = db.collection('Users'),
         _postsCollection = db.collection('Posts'),
         _fellowshipsCollection = db.collection('Fellowships'),
@@ -29,14 +27,14 @@ class ToolsOfWorshipApi {
   Handler get handler {
     Router router = Router();
 
-    router.mount('/apis/Users/',
+    router.mount('/Users/',
         ApiUsers(_userConnectionsCollection, _usersCollection).router);
     router.mount(
-        '/apis/Fellowships/',
+        '/Fellowships/',
         ApiFellowships(_fellowshipsCollection, _fellowshipMembersCollection)
             .router);
     router.mount(
-        '/apis/Feed/',
+        '/Feed/',
         ApiFeed(
                 _usersCollection,
                 _postsCollection,
@@ -46,11 +44,11 @@ class ToolsOfWorshipApi {
                 _circleMembersCollection)
             .router);
 
-    final _handler = Pipeline()
+    final handler = Pipeline()
         .addMiddleware(AccountAuthentication.handleAuth())
         .addMiddleware(AccountAuthentication.checkAuthorisation())
         .addHandler(router);
 
-    return _handler;
+    return handler;
   }
 }

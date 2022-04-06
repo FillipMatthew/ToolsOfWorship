@@ -177,7 +177,7 @@ class ApiFeed {
   Future<Response> _deletePost(Request request) async {
     print('ApiFeed: _deletePost');
 
-    String? userId = request.context['authDetails'] as String;
+    //String? userId = request.context['authDetails'] as String;
 
     return Response.internalServerError();
   }

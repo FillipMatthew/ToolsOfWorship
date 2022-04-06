@@ -37,7 +37,7 @@ class AccountAuthentication {
 
   static Future<bool> authenticateWithGoogleSignIn() async {
     GoogleSignInHelper helper = GoogleSignInHelper();
-    String result = await helper.signIn();
+    await helper.signIn();
     if (helper.currentUser != null) {
       String? token = await helper.signInToken;
       if (token == null) {

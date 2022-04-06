@@ -16,20 +16,25 @@ class ApiFeed {
       },
     );
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == HttpStatus.ok) {
       try {
         List<Map<String, dynamic>> data = json.decode(response.body);
 
-        List<FeedPost> feedList = data.map<FeedPost>((item) {
-          return FeedPost.fromJson(item);
-        }).toList();
+        List<FeedPost> feedList = [];
+        for (Map<String, dynamic> item in data) {
+          try {
+            feedList.add(FeedPost.fromJson(item));
+          } catch (_) {}
+        }
 
         return feedList;
       } on FormatException catch (_) {
-        return <FeedPost>[];
+        throw Exception('Invalid data.');
       }
-    } else {
-      throw Exception('Authentication failed.');
+    } else if (response.statusCode == HttpStatus.forbidden) {
+      throw Exception('Unauthorised.');
     }
+
+    throw Exception('Unexpected error.');
   }
 }

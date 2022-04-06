@@ -33,7 +33,7 @@ class _SignupPageState extends State<SignupPage> {
   }
 
   Widget _content() {
-    bool bDark = Theme.of(context).colorScheme.brightness == Brightness.dark;
+    //bool bDark = Theme.of(context).colorScheme.brightness == Brightness.dark;
 
     return Column(
       children: [

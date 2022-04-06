@@ -20,12 +20,16 @@ import 'package:tools_of_worship_server/tools_of_worship_server.dart';
 // }
 
 void main(List<String> args) async {
-  ArgParser parser = ArgParser()..addOption('port', abbr: 'p');
+  ArgParser parser = ArgParser()
+    ..addOption('port', abbr: 'p')
+    ..addOption('https');
   ArgResults result = parser.parse(args);
   // For running in containers, we respect the PORT environment variable.
   String portStr =
       result['port'] ?? Platform.environment['PORT'] ?? '8080' /*'443'*/;
   final port = int.tryParse(portStr);
+  String httpsString = result['https'] ?? Platform.environment['USEHTTPS'] ?? 'false';
+  final useHttps = httpsString == 'true';
 
   if (port == null) {
     print('Could not parse port value "$portStr" into a number.');
@@ -42,24 +46,26 @@ void main(List<String> args) async {
   }
 
   Router router = Router()
+    ..mount('/apis/', ToolsOfWorshipApi(_db).handler)
     ..mount(
       '/',
       createStaticHandler('${Properties.publicUri}/app',
           defaultDocument: 'index.html'),
     );
 
-  Cascade cascade = Cascade().add(router).add(ToolsOfWorshipApi(_db).handler);
-
   final _handler = Pipeline()
       .addMiddleware(logRequests())
       .addMiddleware(handleCors())
-      .addHandler(cascade.handler);
+      .addHandler(router);
 
-  // SecurityContext securityContext = SecurityContext()
-  //   ..useCertificateChain(
-  //       '${Properties.certificatesUri}/server_chain.pem')
-  //   ..usePrivateKey('${Properties.certificatesUri}/server_key.pem');
+  SecurityContext? securityContext;
+  if (useHttps) {
+    print('Using SSL certificates.');
+    securityContext = SecurityContext()
+      ..useCertificateChain('${Properties.certificatesUri}/server_chain.pem')
+      ..usePrivateKey('${Properties.certificatesUri}/server_key.pem');
+  }
 
-  withHotreload(() => serve(_handler, InternetAddress.anyIPv4,
-      port /*, securityContext: securityContext*/));
+  withHotreload(() => serve(_handler, InternetAddress.anyIPv4, port,
+      securityContext: securityContext));
 }

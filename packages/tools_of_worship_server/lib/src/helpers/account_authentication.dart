@@ -45,7 +45,7 @@ class AccountAuthentication {
   static Middleware checkAuthorisation() {
     return createMiddleware(
       requestHandler: (Request request) {
-        if (request.url.path != 'apis/Users/Authenticate' &&
+        if (request.url.path != 'Users/Authenticate' &&
             request.context['authDetails'] == null) {
           return Response.forbidden('Not authorised to perform this function.');
         }

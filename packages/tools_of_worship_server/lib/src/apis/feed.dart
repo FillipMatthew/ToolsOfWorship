@@ -31,7 +31,7 @@ class ApiFeed {
   Router get router {
     Router router = Router();
 
-    router.get("/List", _getList);
+    router.post("/List", _getList);
 
     router.post("/Post", _postPost);
     router.delete("/Post", _deletePost);
@@ -44,11 +44,35 @@ class ApiFeed {
 
     String? userId = request.context['authDetails'] as String;
 
+    final payload = await request.readAsString();
+
+    int? limit;
+    DateTime? before;
+    DateTime? after;
+
+    try {
+      dynamic data = json.decode(payload);
+
+      limit = data['limit'];
+
+      String? beforeStr = data['before'];
+      if (beforeStr != null) {
+        before = DateTime.tryParse(beforeStr);
+      }
+
+      String? afterStr = data['after'];
+      if (afterStr != null) {
+        after = DateTime.tryParse(afterStr);
+      }
+    } on FormatException catch (_) {
+      return Response.forbidden('Invalid request.');
+    }
+
     Map<String, String> fellowshipNames = <String, String>{};
 
     List<String> fellowshipIds = [];
-    var fellowshipMembersResult = _fellowshipMembersCollection
-        .find(where.eq('userId', userId));
+    var fellowshipMembersResult =
+        _fellowshipMembersCollection.find(where.eq('userId', userId));
 
     await for (var item in fellowshipMembersResult) {
       String id = item['fellowshipId'];
@@ -62,8 +86,8 @@ class ApiFeed {
     Map<String, String> circleNames = <String, String>{};
 
     List<String> circleIds = <String>[];
-    var circleMembersResult = _circleMembersCollection
-        .find(where.eq('userId', userId));
+    var circleMembersResult =
+        _circleMembersCollection.find(where.eq('userId', userId));
 
     await for (var item in circleMembersResult) {
       String id = item['circleId'];
@@ -73,18 +97,36 @@ class ApiFeed {
       circleNames[id] = circlesEntry?['name'];
     }
 
-    var whereClause = <String, dynamic>{};
+    SelectorBuilder selectorBuilder = where;
     if (fellowshipIds.isNotEmpty) {
-      whereClause['fellowshipId'] = {r'$in': fellowshipIds};
+      selectorBuilder = selectorBuilder.oneFrom('fellowshipId', fellowshipIds);
     }
 
     if (circleIds.isNotEmpty) {
-      whereClause['circleId'] = {r'$in': circleIds};
+      selectorBuilder = selectorBuilder.oneFrom('circleId', circleIds);
     }
+
+    if (before != null) {
+      selectorBuilder =
+          selectorBuilder.lt('dateTime', before.toUtc().toIso8601String());
+    }
+
+    if (after != null) {
+      selectorBuilder =
+          selectorBuilder.gt('dateTime', after.toUtc().toIso8601String());
+    }
+
+    bool descending = (before == null && after != null) ? false : true;
+    selectorBuilder =
+        selectorBuilder.sortBy('dateTime', descending: descending);
+    if (limit != null) {
+      selectorBuilder = selectorBuilder.limit(limit);
+    }
+
     List<Map<String, dynamic>> posts = <Map<String, dynamic>>[];
-    if (whereClause.isNotEmpty) {
-      var postsResults = _postsCollection
-          .find(where.raw(whereClause).sortBy('dateTime', descending: true));
+    if (fellowshipIds.isNotEmpty || circleIds.isNotEmpty) {
+      // We should have at least one list of items to filter by.
+      var postsResults = _postsCollection.find(selectorBuilder);
 
       await for (var item in postsResults) {
         Map<String, dynamic> post = <String, dynamic>{};

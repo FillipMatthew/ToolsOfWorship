@@ -23,7 +23,7 @@ class ApiUsers {
     if (response.statusCode == 200) {
       return json.decode(response.body);
     } else if (response.statusCode == HttpStatus.forbidden) {
-      throw Exception('Authentication failed.');
+      throw Exception('Authentication failed');
     }
 
     throw Exception('Unexpected error');

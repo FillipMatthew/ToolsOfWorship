@@ -12,6 +12,7 @@ class FeedWidget extends StatefulWidget {
 }
 
 class _FeedWidgetState extends State<FeedWidget> {
+  static const int _defaultFeedFetchLimit = 15;
   List<FeedPost> posts = [];
   final ScrollController controller = ScrollController();
   bool moreToLoad = true;
@@ -64,7 +65,7 @@ class _FeedWidgetState extends State<FeedWidget> {
                       } else {
                         return moreToLoad
                             ? const Center(child: CircularProgressIndicator())
-                            : const Text('No more posts');
+                            : const Center(child: Text('No more posts'));
                       }
                     },
                   ),
@@ -82,9 +83,11 @@ class _FeedWidgetState extends State<FeedWidget> {
     isLoading = true;
 
     try {
-      List<FeedPost> result = await ApiFeed.getList();
+      List<FeedPost> result = await ApiFeed.getList(limit: _defaultFeedFetchLimit);
+
       setState(() {
-        posts.insertAll(0, result);
+        posts = result;
+        moreToLoad = result.length == _defaultFeedFetchLimit;
         isLoading = false;
       });
     } catch (_) {
@@ -100,13 +103,22 @@ class _FeedWidgetState extends State<FeedWidget> {
     isLoading = true;
 
     try {
-      List<FeedPost> result = await ApiFeed.getList();
+      List<FeedPost> result;
+      if (posts.isNotEmpty) {
+        result = await ApiFeed.getList(
+            limit: _defaultFeedFetchLimit, before: posts.last.dateTimeString);
+      } else {
+        result = await ApiFeed.getList(limit: _defaultFeedFetchLimit);
+      }
+
       setState(() {
         if (result.isNotEmpty) {
           posts.addAll(result);
         } else {
           moreToLoad = false;
         }
+
+        moreToLoad = result.length == _defaultFeedFetchLimit;
 
         isLoading = false;
       });

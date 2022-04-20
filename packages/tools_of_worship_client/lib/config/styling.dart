@@ -8,7 +8,7 @@ const ColorScheme defaultColourScheme = ColorScheme(
     surface: Color(0xFF2F575D),
     background: Color(0xFF28363D),
     error: Colors.black,
-    onPrimary: Color(0xFF607D93),
+    onPrimary: Color(0xFF203D53),
     onSecondary: Color(0xFF99AEAD),
     onSurface: Color(0xFF99AEAD),
     onBackground: Color(0xFF607D93),
@@ -16,3 +16,6 @@ const ColorScheme defaultColourScheme = ColorScheme(
     brightness: Brightness.dark);
 
 const double defaultPadding = 8.0;
+const double maxContentWidth = 800.0;
+const double defaultMenuElevation = 8.0;
+const int defaultMenuAnimationMS = 300;

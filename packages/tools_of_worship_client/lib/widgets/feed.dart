@@ -65,7 +65,9 @@ class _FeedWidgetState extends State<FeedWidget> {
                       } else {
                         return moreToLoad
                             ? const Center(child: CircularProgressIndicator())
-                            : const Center(child: Text('No more posts'));
+                            : const Padding(
+                              padding:  EdgeInsets.only(left: defaultPadding, right: defaultPadding, top: 30.0, bottom: 30.0),
+                              child: Center(child: Text('No more posts')));
                       }
                     },
                   ),
@@ -83,7 +85,8 @@ class _FeedWidgetState extends State<FeedWidget> {
     isLoading = true;
 
     try {
-      List<FeedPost> result = await ApiFeed.getList(limit: _defaultFeedFetchLimit);
+      List<FeedPost> result =
+          await ApiFeed.getList(limit: _defaultFeedFetchLimit);
 
       setState(() {
         posts = result;

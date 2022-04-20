@@ -55,6 +55,8 @@ class AccountAuthentication {
     _displayName = null;
   }
 
+  static String get displayName => _displayName ?? '';
+
   static Future<bool> _authenticate(
       int signInType, String accountId, String? password) async {
     Map<String, String> userData =

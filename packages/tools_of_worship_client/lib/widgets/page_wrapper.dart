@@ -66,18 +66,24 @@ class _PageWrapperState extends State<PageWrapper>
       width: width,
       top: 60.0,
       bottom: fill ? defaultPadding : null,
-      child: AnimatedOpacity(
-        duration: _animationDuration,
-        opacity: _isOpen ? 1.0 : 0.0,
-        child: Card(
-          color: Theme.of(context).cardColor.withOpacity(0.8),
-          elevation: defaultMenuElevation,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15.0),
-          ),
-          child: const Padding(
-            padding: EdgeInsets.all(defaultPadding),
-            child: UserSidebar(),
+      child: IgnorePointer(
+        ignoring: !_isOpen,
+        child: ExcludeFocus(
+          excluding: !_isOpen,
+          child: AnimatedOpacity(
+            duration: _animationDuration,
+            opacity: _isOpen ? 1.0 : 0.0,
+            child: Card(
+              color: Theme.of(context).cardColor.withOpacity(0.8),
+              elevation: defaultMenuElevation,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15.0),
+              ),
+              child: const Padding(
+                padding: EdgeInsets.all(defaultPadding),
+                child: UserSidebar(),
+              ),
+            ),
           ),
         ),
       ),

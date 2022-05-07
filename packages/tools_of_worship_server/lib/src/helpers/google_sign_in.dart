@@ -13,14 +13,14 @@ class GoogleSignIn {
   static final List<String> _googlePublicKeys = <String>[];
   static DateTime _keyExpiration = DateTime.now().toUtc();
 
-  static Future<String?> authenticateToken(String token) async {
+  static Future<Map<String, String>> authenticateToken(String token) async {
     if (_googlePublicKeys.isEmpty || _isExpired()) {
       await _updateGooglePublicKey();
     }
 
     if (_googlePublicKeys.isEmpty) {
       print('No Google puplic keys to decode with.');
-      return null;
+      return {};
     }
 
     for (String key in _googlePublicKeys) {
@@ -36,12 +36,19 @@ class GoogleSignIn {
         if (jwt.issuer != 'accounts.google.com' &&
             jwt.issuer != 'https://accounts.google.com') {
           print('Invalid issuer.');
-          return null;
+          return {};
         }
 
         // print('Payload: ${jwt.payload}');
         print('Account validated.');
-        return jwt.subject;
+        Map<String, String> data = {};
+        if (jwt.subject != null) {
+          data['userId'] = jwt.subject!;
+          data['displayName'] = jwt.payload['name'];
+          data['email'] = jwt.payload['email'];
+        }
+
+        return data;
       } on JWTExpiredError {
         print('JWT Google sign in token expired.');
       } on JWTError catch (ex) {
@@ -49,7 +56,7 @@ class GoogleSignIn {
       }
     }
 
-    return null;
+    return {};
   }
 
   static _updateGooglePublicKey() async {

@@ -1,23 +1,56 @@
+import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
+import 'package:crypto/crypto.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
+import 'package:encrypt/encrypt.dart';
 import 'package:shelf/shelf.dart';
 
 import 'package:tools_of_worship_server/properties.dart';
 
 class AccountAuthentication {
-  static String signToken(String userIdentifier) {
+  static final _tokenKey = Key.fromSecureRandom(32);
+  static final _tokenIv = IV.fromSecureRandom(16);
+
+  static String hashPassword(String password, [String? salt]) {
+    if (salt == null) {
+      final _random = Random.secure();
+      var values = List<int>.generate(32, (i) => _random.nextInt(256));
+      salt = base64.encode(values);
+    }
+
+    final saltedPassword = salt + password;
+    final bytes = utf8.encode(saltedPassword);
+    final hash = sha256.convert(bytes);
+    return '$salt.$hash';
+  }
+
+  static bool validatePassword(String password, String saltHash) {
+    final parts = saltHash.split('.');
+    if (parts.length != 2) {
+      print('saltHash invalid.');
+      return false;
+    }
+
+    String salt = parts[0];
+
+    final newHash = hashPassword(password, salt);
+    return saltHash == newHash;
+  }
+
+  static String signToken(String subject, [Duration? duration]) {
     final jwt = JWT(
       {
         'iat': DateTime.now().millisecondsSinceEpoch,
       },
       issuer: 'https://ToolsOfWorship.com',
-      subject: userIdentifier,
+      subject: subject,
     );
 
     String token = jwt.sign(
       SecretKey(Properties.jwtSecret),
-      expiresIn: Duration(hours: 12),
+      expiresIn: duration ?? Duration(hours: 12),
     );
 
     print('Signed token: $token\n');
@@ -42,12 +75,26 @@ class AccountAuthentication {
     return null;
   }
 
+  static String encryptToken(String token) {
+    final encrypter = Encrypter(AES(_tokenKey, mode: AESMode.cbc));
+    final data = encrypter.encrypt(token, iv: _tokenIv);
+    return data.base64;
+  }
+
+  static String decryptToken(String token) {
+    final encrypter = Encrypter(AES(_tokenKey, mode: AESMode.cbc));
+    final data = encrypter.decrypt64(token, iv: _tokenIv);
+    return data;
+  }
+
   static Middleware checkAuthorisation() {
     return createMiddleware(
       requestHandler: (Request request) {
         if (request.url.path != 'Users/Authenticate' &&
+            request.url.path != 'Users/Signup' &&
+            request.url.path != 'Users/VerifyEmail' &&
             request.context['authDetails'] == null) {
-          return Response.forbidden('Not authorised to perform this function.');
+          return Response.forbidden('Unauthorised.');
         }
 
         return null;

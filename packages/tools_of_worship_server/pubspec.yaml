@@ -16,6 +16,8 @@ dependencies:
   shelf_hotreload: ^1.1.0
   dart_jsonwebtoken: ^2.4.1
   xid: ^1.0.7
+  encrypt: ^5.0.1
+  string_validator: ^0.3.0
 
 dev_dependencies:
   lints: ^1.0.0

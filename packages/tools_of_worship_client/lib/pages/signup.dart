@@ -17,18 +17,50 @@ class _SignupPageState extends State<SignupPage> {
       key: _scaffoldKey,
       // Body section
       body: LayoutBuilder(
-          builder: (BuildContext context, BoxConstraints constraints) {
-        if (constraints.maxWidth > 600) {
-          return Center(
-            child: SizedBox(
-              width: 600.0,
-              child: _content(),
-            ),
-          );
-        } else {
-          return _content();
-        }
-      }),
+        builder: (BuildContext context, BoxConstraints constraints) {
+          if (constraints.maxWidth > 600.0) {
+            return Center(
+              child: SizedBox(
+                width: 600.0,
+                child: _body(),
+              ),
+            );
+          } else {
+            return _body();
+          }
+        },
+      ),
+    );
+  }
+
+  Widget _body() {
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(
+          minHeight: 200.0,
+          maxHeight: 400.0,
+        ),
+        child: Card(
+          elevation: 4.0,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10.0)),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(defaultPadding),
+                child: Text(
+                  'Tools of Worship',
+                  style: Theme.of(context).textTheme.headlineLarge,
+                ),
+              ),
+              _content(),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -36,33 +68,47 @@ class _SignupPageState extends State<SignupPage> {
     //bool bDark = Theme.of(context).colorScheme.brightness == Brightness.dark;
 
     return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        AppBar(
-          title: const Text('Tools of Worship'),
-        ),
-        Expanded(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: const [
-              Padding(
-                padding: EdgeInsets.all(defaultPadding),
-                child: Text(
-                  'Signup',
-                  style: TextStyle(fontSize: 28.0),
-                ),
-              ),
-              // Padding(
-              //   padding: const EdgeInsets.all(defaultPadding),
-              //   child: SignInButton(
-              //     bDark ? Buttons.GoogleDark : Buttons.Google,
-              //     onPressed: _signInWithGoogle,
-              //   ),
-              // ),
-            ],
+        Padding(
+          padding: const EdgeInsets.all(defaultPadding),
+          child: TextFormField(
+            decoration: const InputDecoration(
+              border: UnderlineInputBorder(),
+              labelText: 'Full name',
+            ),
           ),
-        )
+        ),
+        Padding(
+          padding: const EdgeInsets.all(defaultPadding),
+          child: TextFormField(
+            decoration: const InputDecoration(
+              border: UnderlineInputBorder(),
+              labelText: 'Email',
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(defaultPadding),
+          child: TextFormField(
+            obscureText: true,
+            decoration: const InputDecoration(
+              border: UnderlineInputBorder(),
+              labelText: 'Password',
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(defaultPadding),
+          child: ElevatedButton(
+            child: const Text('Signup'),
+            onPressed: _onSignup,
+          ),
+        ),
       ],
     );
   }
+
+  Future<void> _onSignup() async {}
 }

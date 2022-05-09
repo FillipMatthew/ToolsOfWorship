@@ -7,12 +7,12 @@ const ColorScheme defaultColourScheme = ColorScheme(
     secondaryContainer: Color(0xFF355B3F),
     surface: Color(0xFF2F575D),
     background: Color(0xFF28363D),
-    error: Colors.black,
+    error: Colors.red,
     onPrimary: Color(0xFF203D53),
     onSecondary: Color(0xFF99AEAD),
     onSurface: Color(0xFF99AEAD),
     onBackground: Color(0xFF607D93),
-    onError: Colors.red,
+    onError: Colors.black,
     brightness: Brightness.dark);
 
 const double defaultPadding = 8.0;

@@ -5,4 +5,4 @@ export 'pages/welcome.dart';
 export 'pages/signup.dart';
 export 'pages/home.dart';
 
-export 'helpers/show_error.dart';
+export 'helpers/alertbox.dart';

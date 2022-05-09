@@ -10,6 +10,7 @@ class UserSidebar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Center(
           child: Text(AccountAuthentication.displayName),

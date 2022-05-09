@@ -31,10 +31,10 @@ class ApiFeed {
   Router get router {
     Router router = Router();
 
-    router.post("/List", _getList);
+    router.post('/List', _getList);
 
-    router.post("/Post", _postPost);
-    router.delete("/Post", _deletePost);
+    router.post('/Post', _postPost);
+    router.delete('/Post', _deletePost);
 
     return router;
   }

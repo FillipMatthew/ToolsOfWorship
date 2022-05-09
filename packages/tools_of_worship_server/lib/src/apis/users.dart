@@ -25,9 +25,9 @@ class ApiUsers {
   Router get router {
     Router router = Router();
 
-    router.post("/Authenticate", _authenticate);
-    router.post("/Signup", _signup);
-    router.get("/VerifyEmail/<encryptedToken>", _verifyEmail);
+    router.post('/Authenticate', _authenticate);
+    router.post('/Signup', _signup);
+    router.get('/VerifyEmail/<encryptedToken>', _verifyEmail);
 
     return router;
   }
@@ -164,7 +164,7 @@ class ApiUsers {
         return Response.forbidden('Failed to create user.');
       }
 
-      return Response.ok(['Account created.'],
+      return Response.ok('Account created.',
           headers: {HttpHeaders.contentTypeHeader: ContentType.json.mimeType});
     } on FormatException catch (_) {
       return Response.forbidden('Invalid signup data.');
@@ -377,7 +377,8 @@ class ApiUsers {
             .readAsStringSync();
     content = content.replaceAll(RegExp(r'@token'), encryptedToken);
 
-    if (!await EmailRelay.sendNoReplyEmail(email, 'Please verify your email address', content)) {
+    if (!await EmailRelay.sendNoReplyEmail(
+        email, 'Please verify your email address', content)) {
       return false;
     }
 

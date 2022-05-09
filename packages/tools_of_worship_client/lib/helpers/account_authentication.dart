@@ -29,8 +29,8 @@ class AccountAuthentication {
     return false;
   }
 
-  static Future<bool> signIn(String userName, String password) async {
-    return _authenticate(SignInType.localUser, userName, password);
+  static Future<bool> signIn(String email, String password) async {
+    return _authenticate(SignInType.localUser, email, password);
   }
 
   static Future<bool> authenticateWithGoogleSignIn() async {

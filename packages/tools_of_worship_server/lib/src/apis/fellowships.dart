@@ -18,8 +18,8 @@ class ApiFellowships {
   Router get router {
     Router router = Router();
 
-    router.post("/Add", _postAdd);
-    router.post("/Join", _postJoin);
+    router.post('/Add', _postAdd);
+    router.post('/Join', _postJoin);
 
     return router;
   }

@@ -270,10 +270,6 @@ class _WelcomePageState extends State<WelcomePage> {
       return 'Empty password';
     }
 
-    if (isLength(password, 8)){
-      return 'Password must to be 8 or more characters long';
-    }
-
     return null;
   }
 }

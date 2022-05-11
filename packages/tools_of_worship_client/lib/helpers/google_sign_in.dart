@@ -26,17 +26,12 @@ class GoogleSignInHelper {
     }
   }
 
-  Future<String> autoSignIn() async {
-    try {
-      await _googleSignIn.signInSilently();
-      return 'OK';
-    } catch (error) {
-      return 'Error: $error';
-    }
+  Future<void> autoSignIn() async {
+    await _googleSignIn.signInSilently(suppressErrors: false);
   }
 
   Future<void> signOut() async {
-    if (await _googleSignIn.isSignedIn()) {
+    while (await _googleSignIn.isSignedIn()) {
       await _googleSignIn.signOut();
     }
   }

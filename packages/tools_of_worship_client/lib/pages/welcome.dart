@@ -170,7 +170,7 @@ class _WelcomePageState extends State<WelcomePage> {
                   });
                 },
                 child: Icon(
-                  _visiblePassword ? Icons.visibility_off : Icons.visibility,
+                  _visiblePassword ? Icons.visibility : Icons.visibility_off,
                 ),
               ),
             ),

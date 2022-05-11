@@ -141,7 +141,7 @@ class _SignupPageState extends State<SignupPage> {
                   });
                 },
                 child: Icon(
-                  _visiblePassword ? Icons.visibility_off : Icons.visibility,
+                  _visiblePassword ? Icons.visibility : Icons.visibility_off,
                 ),
               ),
             ),
@@ -222,7 +222,7 @@ class _SignupPageState extends State<SignupPage> {
       return 'Empty password';
     }
 
-    if (isLength(password, 8)){
+    if (!isLength(password, 8)){
       return 'Password must to be 8 or more characters long';
     }
 

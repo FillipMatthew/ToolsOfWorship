@@ -196,7 +196,7 @@ class ApiUsers {
       Map<String, dynamic>? accountData =
           await _userConnectionsCollection.findOne(where
               .eq('signInType', signInType)
-              .and(where.eq('accountId', accountId)));
+              .and(where.eq('accountId', normalizeEmail(accountId))));
 
       if (accountData == null ||
           accountData['userId'] == null ||

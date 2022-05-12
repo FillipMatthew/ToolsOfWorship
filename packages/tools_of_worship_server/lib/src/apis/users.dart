@@ -27,7 +27,7 @@ class ApiUsers {
 
     router.post('/Authenticate', _authenticate);
     router.post('/Signup', _signup);
-    router.get('/VerifyEmail/<encryptedToken>', _verifyEmail);
+    router.get('/VerifyEmail', _verifyEmail);
 
     return router;
   }
@@ -123,9 +123,20 @@ class ApiUsers {
     }
   }
 
-  Future<Response> _verifyEmail(Request request, String encryptedToken) async {
+  Future<Response> _verifyEmail(Request request) async {
     print('ApiUsers: _verifyEmail');
 
+    String query = request.url.query;
+    List<String> queries = query.split('&');
+    if (queries.length != 1) {
+      return Response.forbidden('Invalid token.');
+    }
+
+    if (!queries[0].startsWith('token=')) {
+      return Response.forbidden('Invalid token.');
+    }
+
+    String encryptedToken = queries[0].replaceFirst('token=', '');
     String token = AccountAuthentication.decryptToken(encryptedToken);
     String? data = AccountAuthentication.verifyToken(token);
     if (data == null) {

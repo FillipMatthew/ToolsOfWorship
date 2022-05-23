@@ -183,12 +183,13 @@ class _SignupPageState extends State<SignupPage> {
       //   _error = 'Please complete the form to continue signup.';
       // });
     } else {
-      if (!await ApiUsers.signup(_displayName!, _email!, _password!)) {
+      if (await ApiUsers.signup(_displayName!, _email!, _password!)) {
         Navigator.pushNamedAndRemoveUntil(
             context, Routing.root, (Route<dynamic> route) => false);
         showMessage(context,
             'Please check your email account. You need to verify your email address before you can continue.');
       } else {
+        showError(context, 'An error occured while signing up.');
         // setState(() {
         //   _error = '';
         // });
@@ -222,7 +223,7 @@ class _SignupPageState extends State<SignupPage> {
       return 'Empty password';
     }
 
-    if (!isLength(password, 8)){
+    if (!isLength(password, 8)) {
       return 'Password must to be 8 or more characters long';
     }
 

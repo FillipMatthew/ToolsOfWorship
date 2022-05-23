@@ -13,12 +13,12 @@ class UserSidebar extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Center(
-          child: Text(AccountAuthentication.displayName),
+          child: Text(AccountAuthentication().displayName),
         ),
         const Divider(),
         ElevatedButton(
           onPressed: () async {
-            await AccountAuthentication.signOut();
+            await AccountAuthentication().signOut();
             Navigator.pushNamedAndRemoveUntil(
                 context, Routing.root, (Route<dynamic> route) => false);
           },

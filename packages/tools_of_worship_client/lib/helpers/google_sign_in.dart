@@ -31,9 +31,7 @@ class GoogleSignInHelper {
   }
 
   Future<void> signOut() async {
-    while (await _googleSignIn.isSignedIn()) {
-      await _googleSignIn.signOut();
-    }
+    await _googleSignIn.signOut();
   }
 
   GoogleSignInAccount? get currentUser => _googleSignIn.currentUser;

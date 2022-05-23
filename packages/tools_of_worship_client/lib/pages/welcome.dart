@@ -28,7 +28,7 @@ class _WelcomePageState extends State<WelcomePage> {
 
   void _loadUser() async {
     try {
-      if (await AccountAuthentication.signInSilent()) {
+      if (await AccountAuthentication().signInSilent()) {
         Navigator.pushNamedAndRemoveUntil(
             context, Routing.home, (Route<dynamic> route) => false);
         return;
@@ -224,7 +224,7 @@ class _WelcomePageState extends State<WelcomePage> {
       // });
     } else {
       try {
-        if (await AccountAuthentication.signIn(_email!, _password!)) {
+        if (await AccountAuthentication().signIn(_email!, _password!)) {
           Navigator.pushNamedAndRemoveUntil(
               context, Routing.home, (Route<dynamic> route) => false);
         } else {
@@ -246,7 +246,7 @@ class _WelcomePageState extends State<WelcomePage> {
 
   Future<void> _signInWithGoogle() async {
     try {
-      if (await AccountAuthentication.authenticateWithGoogleSignIn()) {
+      if (await AccountAuthentication().authenticateWithGoogleSignIn()) {
         Navigator.pushNamedAndRemoveUntil(
             context, Routing.home, (Route<dynamic> route) => false);
       } else {

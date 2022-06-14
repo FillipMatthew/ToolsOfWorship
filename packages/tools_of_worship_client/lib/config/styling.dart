@@ -15,7 +15,8 @@ const ColorScheme defaultColourScheme = ColorScheme(
     onError: Colors.black,
     brightness: Brightness.dark);
 
-const double defaultPadding = 8.0;
+const double maxAppWidth = 1600.0;
 const double maxContentWidth = 800.0;
+const double defaultPadding = 8.0;
 const double defaultMenuElevation = 8.0;
 const int defaultMenuAnimationMS = 300;

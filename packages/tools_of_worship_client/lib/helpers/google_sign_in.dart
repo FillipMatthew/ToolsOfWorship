@@ -19,7 +19,12 @@ class GoogleSignInHelper {
 
   Future<String> signIn() async {
     try {
-      await _googleSignIn.signIn();
+      if (!await _googleSignIn.isSignedIn() &&
+          await _googleSignIn.signInSilently() == null &&
+          await _googleSignIn.signIn() == null) {
+        return "Error: Sign in failed.";
+      }
+
       return 'OK';
     } catch (error) {
       return 'Error: $error';

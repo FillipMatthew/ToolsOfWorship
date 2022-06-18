@@ -4,14 +4,14 @@ import 'package:tools_of_worship_client/config/styling.dart';
 import 'package:tools_of_worship_client/apis/types/feed_post.dart';
 import 'package:tools_of_worship_client/widgets/feed_entry.dart';
 
-class FeedWidget extends StatefulWidget {
-  const FeedWidget({Key? key}) : super(key: key);
+class Feed extends StatefulWidget {
+  const Feed({Key? key}) : super(key: key);
 
   @override
-  _FeedWidgetState createState() => _FeedWidgetState();
+  _FeedState createState() => _FeedState();
 }
 
-class _FeedWidgetState extends State<FeedWidget> {
+class _FeedState extends State<Feed> {
   static const int _defaultFeedFetchLimit = 15;
   List<FeedPost> posts = [];
   final ScrollController controller = ScrollController();
@@ -61,7 +61,7 @@ class _FeedWidgetState extends State<FeedWidget> {
                     itemCount: posts.length + 1,
                     itemBuilder: (BuildContext context, int index) {
                       if (index < posts.length) {
-                        return FeedEntryWidget(posts[index]);
+                        return FeedEntry(posts[index]);
                       } else {
                         return moreToLoad
                             ? const Center(child: CircularProgressIndicator())

@@ -1,29 +1,15 @@
 import 'package:flutter/material.dart';
 
 import 'package:tools_of_worship_client/config/styling.dart';
+import 'package:tools_of_worship_client/widgets/prayer_list_entry.dart';
 
-class PrayerListItem extends StatelessWidget {
-  final String description;
-
-  const PrayerListItem(this.description, {Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(description),
-      //padding: EdgeInsets.all(8.0),
-      //child: Text(description),
-    );
-  }
-}
-
-class PrayerListView extends StatelessWidget {
+class PrayerList extends StatelessWidget {
   static const List<String> prayerList = [
     'Description of prayer item 1.',
     'Description of prayer item 2.'
   ];
 
-  const PrayerListView({Key? key}) : super(key: key);
+  const PrayerList({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +27,7 @@ class PrayerListView extends StatelessWidget {
           padding: const EdgeInsets.all(defaultPadding),
           itemCount: prayerList.length,
           itemBuilder: (BuildContext context, int index) {
-            return PrayerListItem(prayerList[index]);
+            return PrayerListEntry(prayerList[index]);
           },
         ),
       ),

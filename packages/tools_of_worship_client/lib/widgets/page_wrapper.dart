@@ -3,13 +3,10 @@ import 'package:tools_of_worship_client/config/styling.dart';
 import 'package:tools_of_worship_client/widgets/user_sidebar.dart';
 
 class PageWrapper extends StatefulWidget {
-  final Widget _content;
-  final Widget? _actionButton;
+  final Widget _child;
 
-  const PageWrapper(Widget content,
-      {FloatingActionButton? actionButton, Key? key})
-      : _content = content,
-        _actionButton = actionButton,
+  const PageWrapper({required Widget child, Key? key})
+      : _child = child,
         super(key: key);
 
   @override
@@ -33,7 +30,6 @@ class _PageWrapperState extends State<PageWrapper>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: widget._actionButton,
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1600.0),
@@ -52,7 +48,7 @@ class _PageWrapperState extends State<PageWrapper>
                     ],
                   ),
                   Expanded(
-                    child: widget._content,
+                    child: widget._child,
                   ),
                 ],
               ),
@@ -90,7 +86,7 @@ class _PageWrapperState extends State<PageWrapper>
             duration: _animationDuration,
             opacity: _isOpen ? 1.0 : 0.0,
             child: Card(
-              color: Theme.of(context).cardColor.withOpacity(0.8),
+              color: Theme.of(context).cardColor.withOpacity(defaultOverlayOpacity),
               elevation: defaultMenuElevation,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15.0),

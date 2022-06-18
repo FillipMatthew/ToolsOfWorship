@@ -3,10 +3,10 @@ import 'package:tools_of_worship_client/config/styling.dart';
 import 'package:tools_of_worship_client/apis/types/feed_post.dart';
 import 'package:tools_of_worship_client/helpers/strings.dart';
 
-class FeedEntryWidget extends StatelessWidget {
+class FeedEntry extends StatelessWidget {
   final FeedPost _entry;
 
-  const FeedEntryWidget(FeedPost entry, {Key? key})
+  const FeedEntry(FeedPost entry, {Key? key})
       : _entry = entry,
         super(key: key);
 

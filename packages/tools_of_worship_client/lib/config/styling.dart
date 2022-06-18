@@ -19,4 +19,5 @@ const double maxAppWidth = 1600.0;
 const double maxContentWidth = 800.0;
 const double defaultPadding = 8.0;
 const double defaultMenuElevation = 8.0;
+const double defaultOverlayOpacity = 0.9;
 const int defaultMenuAnimationMS = 300;

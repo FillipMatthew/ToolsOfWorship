@@ -4,34 +4,33 @@ import 'dart:io';
 import 'package:mongo_dart/mongo_dart.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
+import 'package:tools_of_worship_server/src/interfaces/fellowships_data_provider.dart';
+import 'package:tools_of_worship_server/src/types/access_level.dart';
 import 'package:xid/xid.dart';
 
 class ApiFeed {
   final DbCollection _usersCollection;
   final DbCollection _postsCollection;
-  final DbCollection _fellowshipsCollection;
-  final DbCollection _fellowshipMembersCollection;
+  final FellowshipsDataProvider _fellowshipsDataProvider;
   final DbCollection _circlesCollection;
   final DbCollection _circleMembersCollection;
 
   ApiFeed(
       DbCollection users,
       DbCollection posts,
-      DbCollection fellowships,
-      DbCollection fellowshipMembers,
+      FellowshipsDataProvider fellowshipsDataProvider,
       DbCollection circles,
       DbCollection circleMembers)
       : _usersCollection = users,
         _postsCollection = posts,
-        _fellowshipsCollection = fellowships,
-        _fellowshipMembersCollection = fellowshipMembers,
+        _fellowshipsDataProvider = fellowshipsDataProvider,
         _circlesCollection = circles,
         _circleMembersCollection = circleMembers;
 
   Router get router {
     Router router = Router();
 
-    router.post('/List', _getList);
+    router.post('/List', _postList);
 
     router.post('/Post', _postPost);
     router.delete('/Post', _deletePost);
@@ -39,8 +38,8 @@ class ApiFeed {
     return router;
   }
 
-  Future<Response> _getList(Request request) async {
-    print('ApiFeed: _getList');
+  Future<Response> _postList(Request request) async {
+    print('ApiFeed: _postList');
 
     String? userId = request.context['authDetails'] as String;
 
@@ -68,19 +67,12 @@ class ApiFeed {
       return Response.forbidden('Invalid request.');
     }
 
-    Map<String, String> fellowshipNames = <String, String>{};
-
     List<String> fellowshipIds = [];
-    var fellowshipMembersResult =
-        _fellowshipMembersCollection.find(where.eq('userId', userId));
-
-    await for (var item in fellowshipMembersResult) {
-      String id = item['fellowshipId'];
-      fellowshipIds.add(id);
-
-      var fellowshipEntry =
-          await _fellowshipsCollection.findOne(where.eq('id', id));
-      fellowshipNames[id] = fellowshipEntry?['name'];
+    Map<String, String> fellowshipNames = <String, String>{};
+    await _fellowshipsDataProvider.getUserFellowships(userId, AccessLevel.readOnly, fellowshipNames);
+    for (String key in fellowshipNames.keys)
+    {
+      fellowshipIds.add(key);
     }
 
     Map<String, String> circleNames = <String, String>{};

@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:mongo_dart/mongo_dart.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 import 'package:string_validator/string_validator.dart';
@@ -9,18 +8,18 @@ import 'package:tools_of_worship_server/properties.dart';
 import 'package:tools_of_worship_server/src/helpers/email_relay.dart';
 
 import 'package:tools_of_worship_server/src/helpers/google_sign_in.dart';
+import 'package:tools_of_worship_server/src/interfaces/users_data_provider.dart';
 import 'package:tools_of_worship_server/src/types/sign_in_type.dart';
 import 'package:tools_of_worship_server/src/types/user.dart';
 import 'package:tools_of_worship_server/src/helpers/account_authentication.dart';
+import 'package:tools_of_worship_server/src/types/user_connection.dart';
 import 'package:xid/xid.dart';
 
 class ApiUsers {
-  final DbCollection _userConnectionsCollection;
-  final DbCollection _usersCollection;
+  final UsersDataProvider _usersDataProvider;
 
-  ApiUsers(DbCollection userConnections, DbCollection users)
-      : _userConnectionsCollection = userConnections,
-        _usersCollection = users;
+  ApiUsers(UsersDataProvider usersDataProvider)
+      : _usersDataProvider = usersDataProvider;
 
   Router get router {
     Router router = Router();
@@ -193,29 +192,21 @@ class ApiUsers {
         return null;
       }
 
-      Map<String, dynamic>? accountData =
-          await _userConnectionsCollection.findOne(where
-              .eq('signInType', signInType)
-              .and(where.eq('accountId', normalizeEmail(accountId))));
-
-      if (accountData == null ||
-          accountData['userId'] == null ||
-          accountData['authDetails'] == null) {
-        return null; // No user found.
+      UserConnection? userConnection = await _usersDataProvider
+          .getUserConnection(signInType, normalizeEmail(accountId));
+      if (userConnection == null ||
+          !userConnection.isValid ||
+          userConnection.authDetails == null) {
+        return null;
       }
 
-      String saltHash = accountData['authDetails'];
+      String saltHash = userConnection.authDetails!;
 
       if (!AccountAuthentication.validatePassword(password, saltHash)) {
         return null;
       }
 
-      var userData =
-          await _usersCollection.findOne(where.eq('id', accountData['userId']));
-
-      if (userData != null) {
-        return User.fromJson(userData);
-      }
+      return await _usersDataProvider.getUser(userConnection.userId);
     } else if (signInType == SignInType.googleSignIn) {
       Map<String, String> signInData =
           await GoogleSignIn.authenticateToken(accountId);
@@ -225,98 +216,71 @@ class ApiUsers {
         return null;
       }
 
-      Map<String, dynamic>? accountData =
-          await _userConnectionsCollection.findOne(where
-              .eq('signInType', signInType)
-              .and(where.eq('accountId', googleSignInId)));
-
-      if (accountData == null || accountData['userId'] == null) {
+      UserConnection? userConnection = await _usersDataProvider
+          .getUserConnection(signInType, googleSignInId);
+      if (userConnection != null && userConnection.isValid) {
+        return _usersDataProvider.getUser(userConnection.userId);
+      } else {
         // No user link to this Google account yet. First check if the email is used.
         String? userEmail = signInData['email'];
 
         if (userEmail != null) {
           userEmail = normalizeEmail(userEmail);
-          accountData = await _userConnectionsCollection.findOne(where
-              .eq('signInType', SignInType.localUser)
-              .and(where.eq('accountId', userEmail)));
+          userConnection = await _usersDataProvider.getUserConnection(
+              SignInType.localUser, userEmail);
         }
 
         String userId;
         bool bCreatedNewUser = false;
-        if (userEmail == null ||
-            accountData == null ||
-            accountData['userId'] == null) {
+        if (userEmail != null &&
+            userConnection != null &&
+            userConnection.isValid) {
+          // The user already has an account linked to the email. Link the Google sign in to that user account.
+          userId = userConnection.userId;
+        } else {
           // The user does not yet exist so create it.
           userId = Xid.string();
-
-          WriteResult result = await _usersCollection.insertOne({
-            'id': userId,
-            'displayName': userDisplayName,
-          });
-
-          if (!result.isSuccess) {
-            print('Failed to insert user into database.');
+          User? user = await _usersDataProvider
+              .insertNewUser(User.create(userId, userDisplayName));
+          if (user == null || !user.isValid) {
             return null;
           }
 
           bCreatedNewUser = true;
-        } else {
-          userId = accountData['userId'];
         }
 
-        // Add a connection for login authentication.
-        WriteResult result = await _userConnectionsCollection.insertOne({
-          'userId': userId,
-          'signInType': SignInType.googleSignIn,
-          'accountId': googleSignInId,
-        });
-
-        if (!result.isSuccess) {
-          print('Failed to insert user connection into database.');
+        // Add a connection for Google sign in authentication.
+        userConnection = await _usersDataProvider.insertUserConnection(
+            UserConnection.create(
+                userId, SignInType.googleSignIn, googleSignInId, null));
+        if (userConnection == null || !userConnection.isValid) {
           if (bCreatedNewUser) {
             // Remove the created user since we were unable to add a login connection.
-            await _usersCollection.remove(where.eq('id', userId));
+            _usersDataProvider.removeUser(userId);
           }
 
           return null;
         }
 
-        if (bCreatedNewUser) {
+        if (bCreatedNewUser && userEmail != null) {
           // If we created a new user then there were no login connections, make sure to create all.
 
-          // Add a connection for email login authentication. A password will still need to be configured.
-          // Prevents users from creating a second account with the password linkged to Google.
-          WriteResult result = await _userConnectionsCollection.insertOne({
-            'userId': userId,
-            'signInType': SignInType.localUser,
-            'accountId': userEmail,
-          });
-
-          if (!result.isSuccess) {
-            print('Failed to insert user connection into database.');
+          // Add a connection for email login authentication. A password will still need to be configured for it.
+          // This prevents users from creating a second account with the same email, one though email sign in and one through Google sign in.
+          userConnection = await _usersDataProvider.insertUserConnection(
+              UserConnection.create(
+                  userId, SignInType.localUser, userEmail, null));
+          if (userConnection == null || !userConnection.isValid) {
             if (bCreatedNewUser) {
               // Remove the created user since we were unable to add all login connections.
-              await _usersCollection.remove(where.eq('id', userId));
-              await _userConnectionsCollection.remove(where.eq('id', userId));
+              _usersDataProvider.removeUser(userId);
             }
 
             return null;
           }
         }
 
-        var userData = await _usersCollection.findOne(where.eq('id', userId));
-        if (userData != null) {
-          return User.fromJson(userData);
-        }
-
-        return null;
-      }
-
-      var userData =
-          await _usersCollection.findOne(where.eq('id', accountData['userId']));
-
-      if (userData != null) {
-        return User.fromJson(userData);
+        return _usersDataProvider.getUser(userId);
       }
     }
 
@@ -324,47 +288,29 @@ class ApiUsers {
   }
 
   Future<bool> _validateNewUser(String email) async {
-    Map<String, dynamic>? accountData =
-        await _userConnectionsCollection.findOne(where
-            .eq('signInType', SignInType.localUser)
-            .and(where.eq('accountId', normalizeEmail(email))));
-
-    if (accountData != null && accountData['userId'] != null) {
-      print('Email already in use.');
-      return false;
-    }
-
-    return true;
+    return (await _usersDataProvider.getUserConnection(
+                SignInType.localUser, email))
+            ?.isValid ??
+        false;
   }
 
   Future<bool> _createNewUser(
       String email, String authDetails, String displayName) async {
     String userId = Xid.string();
 
-    WriteResult result = await _usersCollection.insertOne({
-      'id': userId,
-      'displayName': displayName,
-    });
-
-    if (!result.isSuccess) {
-      print('Failed to insert user into database.');
-      await _usersCollection.remove(where.eq('id', userId));
+    User? user = await _usersDataProvider
+        .insertNewUser(User.create(userId, displayName));
+    if (user == null || !user.isValid) {
       return false;
     }
 
     // Add a connection for login authentication.
-    result = await _userConnectionsCollection.insertOne({
-      'userId': userId,
-      'signInType': SignInType.localUser,
-      'accountId': normalizeEmail(email),
-      'authDetails': authDetails,
-    });
-
-    if (!result.isSuccess) {
-      print('Failed to insert user connection into database.');
+    UserConnection? userConnection =
+        await _usersDataProvider.insertUserConnection(UserConnection.create(
+            userId, SignInType.localUser, normalizeEmail(email), authDetails));
+    if (userConnection == null || !userConnection.isValid) {
       // Remove the created user since we were unable to add all login connections.
-      await _usersCollection.remove(where.eq('id', userId));
-      await _userConnectionsCollection.remove(where.eq('id', userId));
+      _usersDataProvider.removeUser(userId);
       return false;
     }
 

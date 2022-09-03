@@ -5,23 +5,25 @@ import 'package:mongo_dart/mongo_dart.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 import 'package:tools_of_worship_server/src/interfaces/fellowships_data_provider.dart';
+import 'package:tools_of_worship_server/src/interfaces/users_data_provider.dart';
 import 'package:tools_of_worship_server/src/types/access_level.dart';
+import 'package:tools_of_worship_server/src/types/user.dart';
 import 'package:xid/xid.dart';
 
 class ApiFeed {
-  final DbCollection _usersCollection;
+  final UsersDataProvider _usersProvider;
   final DbCollection _postsCollection;
   final FellowshipsDataProvider _fellowshipsDataProvider;
   final DbCollection _circlesCollection;
   final DbCollection _circleMembersCollection;
 
   ApiFeed(
-      DbCollection users,
+      UsersDataProvider usersProvider,
       DbCollection posts,
       FellowshipsDataProvider fellowshipsDataProvider,
       DbCollection circles,
       DbCollection circleMembers)
-      : _usersCollection = users,
+      : _usersProvider = usersProvider,
         _postsCollection = posts,
         _fellowshipsDataProvider = fellowshipsDataProvider,
         _circlesCollection = circles,
@@ -69,9 +71,9 @@ class ApiFeed {
 
     List<String> fellowshipIds = [];
     Map<String, String> fellowshipNames = <String, String>{};
-    await _fellowshipsDataProvider.getUserFellowships(userId, AccessLevel.readOnly, fellowshipNames);
-    for (String key in fellowshipNames.keys)
-    {
+    await _fellowshipsDataProvider.getUserFellowships(
+        userId, AccessLevel.readOnly, fellowshipNames);
+    for (String key in fellowshipNames.keys) {
       fellowshipIds.add(key);
     }
 
@@ -216,8 +218,7 @@ class ApiFeed {
   }
 
   Future<String?> _getUserName(String id) async {
-    var user = await _usersCollection.findOne(where.eq('id', id));
-    String? userName = user?['displayName'];
-    return userName;
+    User? user = await _usersProvider.getUser(id);
+    return user?.displayName;
   }
 }

@@ -19,8 +19,8 @@ class NewPost extends StatelessWidget {
         const Divider(),
         Expanded(
           child: Column(
-            children: const [
-              Padding(
+            children: [
+              const Padding(
                 padding: EdgeInsets.all(defaultPadding),
                 child: TextField(
                   keyboardType: TextInputType.text,
@@ -33,7 +33,7 @@ class NewPost extends StatelessWidget {
                 ),
               ),
               Expanded(
-                child: Padding(
+                child: const Padding(
                   padding: EdgeInsets.all(defaultPadding),
                   child: TextField(
                     expands: true,

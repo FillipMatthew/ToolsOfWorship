@@ -5,6 +5,7 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 import 'package:tools_of_worship_server/src/interfaces/fellowships_data_provider.dart';
 import 'package:tools_of_worship_server/src/types/access_level.dart';
+import 'package:tools_of_worship_server/src/types/fellowship.dart';
 import 'package:xid/xid.dart';
 
 class ApiFellowships {
@@ -44,7 +45,8 @@ class ApiFellowships {
       String fellowshipId = Xid.string();
 
       if (!await _fellowshipsDataProvider.create(fellowshipId, name, userId)) {
-        return Response.internalServerError(body: "Failed to create fellowship.");
+        return Response.internalServerError(
+            body: "Failed to create fellowship.");
       }
 
       return Response.ok(
@@ -65,7 +67,7 @@ class ApiFellowships {
   }
 
   Future<Response> _postList(Request request) async {
-    print('ApiFellowship: _postAdd');
+    print('ApiFellowship: _postList');
 
     String? userId = request.context['authDetails'] as String;
 
@@ -74,11 +76,22 @@ class ApiFellowships {
     try {
       dynamic data = json.decode(payload);
 
-      Map<String, String> userFellowships = <String, String>{};
-      await _fellowshipsDataProvider.getUserFellowships(userId, AccessLevel.readOnly, userFellowships);
+      Stream<Fellowship> userFellowships = _fellowshipsDataProvider
+          .getUserFellowships(userId, AccessLevel.readOnly);
+
+      List<Map<String, dynamic>> fellowships = [];
+      await for (Fellowship fellowship in userFellowships) {
+        if (fellowship.isValid) {
+          fellowships.add({
+            'id': fellowship.id,
+            'name': fellowship.name,
+            'creatorId': fellowship.creatorId,
+          });
+        }
+      }
 
       return Response.ok(
-        json.encode(userFellowships),
+        json.encode(fellowships),
         headers: {HttpHeaders.contentTypeHeader: ContentType.json.mimeType},
       );
     } on FormatException catch (_) {

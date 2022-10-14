@@ -1,6 +1,7 @@
 import 'package:mongo_dart/mongo_dart.dart';
 import 'package:tools_of_worship_server/src/interfaces/fellowships_data_provider.dart';
 import 'package:tools_of_worship_server/src/types/access_level.dart';
+import 'package:tools_of_worship_server/src/types/fellowship.dart';
 
 class FellowshipsDatabase implements FellowshipsDataProvider {
   final DbCollection _fellowshipsCollection;
@@ -11,24 +12,37 @@ class FellowshipsDatabase implements FellowshipsDataProvider {
         _fellowshipMembersCollection = fellowshipMemebers;
 
   @override
-  Future<void> getUserFellowships(String userId, int minAccessLevel,
-      Map<String, String> userFellowships) async {
+  Stream<Fellowship> getUserFellowships(
+      String userId, int minAccessLevel) async* {
     var fellowshipMembersResult = _fellowshipMembersCollection.find(
         where.eq('userId', userId).and(where.lte('access', minAccessLevel)));
 
     await for (var item in fellowshipMembersResult) {
       String id = item['fellowshipId'];
 
-      var fellowshipEntry =
+      Map<String, dynamic>? fellowshipEntry =
           await _fellowshipsCollection.findOne(where.eq('id', id));
-      userFellowships[id] = fellowshipEntry?['name'];
+      if (fellowshipEntry != null) {
+        yield Fellowship.fromJson(fellowshipEntry);
+      }
     }
+  }
+
+  @override
+  Future<Fellowship?> getFellowship(String fellowshipId) async {
+    Map<String, dynamic>? fellowshipEntry =
+        await _fellowshipsCollection.findOne(where.eq('id', fellowshipId));
+    if (fellowshipEntry == null) {
+      return null;
+    }
+
+    return Fellowship.fromJson(fellowshipEntry);
   }
 
   @override
   Future<bool> exists(String name, String creatorId) async {
     var fellowship = await _fellowshipsCollection
-        .findOne(where.eq('name', name).and(where.eq('creator', creatorId)));
+        .findOne(where.eq('name', name).and(where.eq('creatorId', creatorId)));
 
     if (fellowship != null && fellowship.isNotEmpty) {
       return true;
@@ -42,7 +56,7 @@ class FellowshipsDatabase implements FellowshipsDataProvider {
     WriteResult result = await _fellowshipsCollection.insertOne({
       'id': fellowshipId,
       'name': name,
-      'creator': userId,
+      'creatorId': userId,
     });
 
     if (!result.success) {

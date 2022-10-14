@@ -23,7 +23,7 @@ class UserConnection {
   String get userId => _userId!;
   int get signInType => _signInType!;
   String get accountId => _accountId!;
-  String? get authDetails => _authDetails!;
+  String? get authDetails => _authDetails;
 
   bool get isValid =>
       _userId != null && _signInType != null && _accountId != null;

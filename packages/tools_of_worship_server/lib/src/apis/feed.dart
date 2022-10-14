@@ -5,29 +5,29 @@ import 'package:mongo_dart/mongo_dart.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 import 'package:tools_of_worship_server/src/interfaces/fellowships_data_provider.dart';
+import 'package:tools_of_worship_server/src/interfaces/feed_data_provider.dart';
 import 'package:tools_of_worship_server/src/interfaces/users_data_provider.dart';
-import 'package:tools_of_worship_server/src/types/access_level.dart';
+import 'package:tools_of_worship_server/src/types/fellowship.dart';
+import 'package:tools_of_worship_server/src/types/post.dart';
 import 'package:tools_of_worship_server/src/types/user.dart';
 import 'package:xid/xid.dart';
 
 class ApiFeed {
+  final FeedDataProvider _feedProvider;
   final UsersDataProvider _usersProvider;
-  final DbCollection _postsCollection;
-  final FellowshipsDataProvider _fellowshipsDataProvider;
+  final FellowshipsDataProvider _fellowshipsProvider;
   final DbCollection _circlesCollection;
-  final DbCollection _circleMembersCollection;
 
   ApiFeed(
+      FeedDataProvider feedProvider,
       UsersDataProvider usersProvider,
-      DbCollection posts,
-      FellowshipsDataProvider fellowshipsDataProvider,
+      FellowshipsDataProvider fellowshipsProvider,
       DbCollection circles,
       DbCollection circleMembers)
-      : _usersProvider = usersProvider,
-        _postsCollection = posts,
-        _fellowshipsDataProvider = fellowshipsDataProvider,
-        _circlesCollection = circles,
-        _circleMembersCollection = circleMembers;
+      : _feedProvider = feedProvider,
+        _usersProvider = usersProvider,
+        _fellowshipsProvider = fellowshipsProvider,
+        _circlesCollection = circles;
 
   Router get router {
     Router router = Router();
@@ -69,82 +69,55 @@ class ApiFeed {
       return Response.forbidden('Invalid request.');
     }
 
-    List<String> fellowshipIds = [];
-    Map<String, String> fellowshipNames = <String, String>{};
-    await _fellowshipsDataProvider.getUserFellowships(
-        userId, AccessLevel.readOnly, fellowshipNames);
-    for (String key in fellowshipNames.keys) {
-      fellowshipIds.add(key);
-    }
-
-    Map<String, String> circleNames = <String, String>{};
-
-    List<String> circleIds = <String>[];
-    var circleMembersResult =
-        _circleMembersCollection.find(where.eq('userId', userId));
-
-    await for (var item in circleMembersResult) {
-      String id = item['circleId'];
-      circleIds.add(id);
-
-      var circlesEntry = await _circlesCollection.findOne(where.eq('id', id));
-      circleNames[id] = circlesEntry?['name'];
-    }
-
-    SelectorBuilder selectorBuilder = where;
-    if (fellowshipIds.isNotEmpty) {
-      selectorBuilder = selectorBuilder.oneFrom('fellowshipId', fellowshipIds);
-    }
-
-    if (circleIds.isNotEmpty) {
-      selectorBuilder = selectorBuilder.oneFrom('circleId', circleIds);
-    }
-
-    if (before != null) {
-      selectorBuilder =
-          selectorBuilder.lt('dateTime', before.toUtc().toIso8601String());
-    }
-
-    if (after != null) {
-      selectorBuilder =
-          selectorBuilder.gt('dateTime', after.toUtc().toIso8601String());
-    }
-
-    bool descending = (before == null && after != null) ? false : true;
-    selectorBuilder =
-        selectorBuilder.sortBy('dateTime', descending: descending);
-    if (limit != null) {
-      selectorBuilder = selectorBuilder.limit(limit);
-    }
+    Map<String, String?> nameCache = {};
+    Map<String, String?> fellowshipNamesCache = <String, String>{};
+    Map<String, String?> circleNamesCache = <String, String>{};
 
     List<Map<String, dynamic>> posts = <Map<String, dynamic>>[];
-    if (fellowshipIds.isNotEmpty || circleIds.isNotEmpty) {
-      // We should have at least one list of items to filter by.
-      var postsResults = _postsCollection.find(selectorBuilder);
 
-      await for (var item in postsResults) {
-        Map<String, dynamic> post = <String, dynamic>{};
-        post['id'] = item['id'];
-        post['heading'] = item['heading'];
-        post['author'] = await _getUserName(item['authorId']);
-        post['dateTime'] = item['dateTime'];
-        post['article'] = item['article'];
-
-        String feedName = '';
-        String? fellowshipId = item['fellowshipId'];
-        String? circleId = item['circleId'];
-        if (fellowshipId != null) {
-          feedName += fellowshipNames[fellowshipId] ?? '';
-        }
-
-        if (circleId != null) {
-          feedName += '(${circleNames[fellowshipId]})';
-        }
-
-        post['feedName'] = feedName;
-
-        posts.add(post);
+    Stream<Post> postsResults =
+        _feedProvider.getPosts(userId, limit, before, after);
+    await for (Post item in postsResults) {
+      Map<String, dynamic> post = <String, dynamic>{};
+      post['id'] = item.id;
+      post['heading'] = item.heading;
+      if (nameCache.containsKey(item.authorId)) {
+        post['author'] = nameCache[item.authorId];
+      } else {
+        post['author'] =
+            nameCache[item.authorId] = await _getUserName(item.authorId);
       }
+      post['dateTime'] = item.dateTime.toUtc().toIso8601String();
+      post['article'] = item.article;
+
+      String feedName = '';
+      if (item.fellowshipId != null) {
+        if (fellowshipNamesCache.containsKey(item.fellowshipId)) {
+          feedName += fellowshipNamesCache[item.fellowshipId] ?? '';
+        } else {
+          Fellowship? fellowship =
+              await _fellowshipsProvider.getFellowship(item.fellowshipId!);
+          String? name = fellowship?.name;
+          fellowshipNamesCache[item.fellowshipId!] = fellowship?.name;
+          feedName += name ?? '';
+        }
+      }
+
+      if (item.circleId != null) {
+        if (circleNamesCache.containsKey(item.circleId)) {
+          feedName += '(${circleNamesCache[item.circleId] ?? ''})';
+        } else {
+          var circlesEntry =
+              await _circlesCollection.findOne(where.eq('id', item.circleId));
+          String? name =
+              circleNamesCache[item.circleId!] = circlesEntry?['name'];
+          feedName += '(${name ?? ''})';
+        }
+      }
+
+      post['feedName'] = feedName;
+
+      posts.add(post);
     }
 
     return Response.ok(
@@ -175,31 +148,21 @@ class ApiFeed {
         return Response.forbidden('Invalid request.');
       }
 
-      if (fellowshipId != null && fellowshipId.isNotEmpty) {
-        WriteResult result = await _postsCollection.insertOne({
-          'id': Xid.string(),
-          'authorId': userId,
-          'fellowshipId': fellowshipId,
-          'dateTime': DateTime.now().toUtc().toIso8601String(),
-          'heading': heading,
-          'article': article,
-        });
+      // If we have a circle ID we don't need a fellowship ID because they are linked.
+      Post? post;
+      if (circleId != null && circleId.isNotEmpty) {
+        post = Post.create(Xid.string(), userId, null, circleId,
+            DateTime.now().toUtc(), heading, article);
+      } else if (fellowshipId != null && fellowshipId.isNotEmpty) {
+        post = Post.create(Xid.string(), userId, fellowshipId, null,
+            DateTime.now().toUtc(), heading, article);
+      }
 
-        if (result.success) {
+      if (post != null) {
+        if (await _feedProvider.create(post)) {
           return Response.ok('');
-        }
-      } else if (circleId != null && circleId.isNotEmpty) {
-        WriteResult result = await _postsCollection.insertOne({
-          'id': Xid.string(),
-          'authorId': userId,
-          'circleId': circleId,
-          'dateTime': DateTime.now().toUtc().toIso8601String(),
-          'heading': heading,
-          'article': article,
-        });
-
-        if (result.success) {
-          return Response.ok('');
+        } else {
+          return Response.forbidden('Post failed.');
         }
       }
 

@@ -94,6 +94,7 @@ class _WelcomePageState extends State<WelcomePage> {
           child: Card(
             elevation: 4.0,
             shape: const RoundedRectangleBorder(
+              side: BorderSide.none,
               borderRadius: BorderRadius.all(Radius.circular(10.0)),
             ),
             child: Column(

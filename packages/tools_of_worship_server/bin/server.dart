@@ -21,15 +21,17 @@ import 'package:tools_of_worship_server/tools_of_worship_server.dart';
 
 void main(List<String> args) async {
   ArgParser parser = ArgParser()
-    ..addOption('port', abbr: 'p')
-    ..addOption('https');
+    ..addOption('https')
+    ..addOption('port', abbr: 'p');
   ArgResults result = parser.parse(args);
   // For running in containers, we respect the PORT environment variable.
-  String portStr =
-      result['port'] ?? Platform.environment['PORT'] ?? '8080' /*'443'*/;
-  final port = int.tryParse(portStr);
-  String httpsString = result['https'] ?? Platform.environment['USEHTTPS'] ?? 'false';
+  String httpsString =
+      result['https'] ?? Platform.environment['USEHTTPS'] ?? 'false';
   final useHttps = httpsString == 'true';
+  String portStr = result['port'] ??
+      Platform.environment['PORT'] ??
+      (useHttps ? '443' : '8080');
+  final port = int.tryParse(portStr);
 
   if (port == null) {
     print('Could not parse port value "$portStr" into a number.');

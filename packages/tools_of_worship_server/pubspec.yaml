@@ -9,19 +9,19 @@ environment:
 
 dependencies:
   args: ^2.3.1
-  mongo_dart: ^0.7.4
-  shelf: ^1.4.0
+  mongo_dart: ^0.8.0-1.0.beta
+  shelf: ^1.3.0
   shelf_router: ^1.1.3
   shelf_static: ^1.1.1
-  shelf_hotreload: ^1.3.0
+  shelf_hotreload: ^1.1.0
   dart_jsonwebtoken: ^2.4.2
   xid: ^1.0.7
   encrypt: ^5.0.1
   string_validator: ^0.3.0
 
 dev_dependencies:
-  lints: ^2.0.0
-  test_process: ^2.0.3
-  test: ^1.21.6
-  build_runner: ^2.3.0
-  build_web_compilers: ^3.2.6
+  lints: ^1.0.0
+  test_process: ^2.0.2
+  test: ^1.20.0
+  build_runner: ^2.2.0
+  build_web_compilers: ^3.2.2

@@ -2,6 +2,10 @@
 
 A simple app for sharing news and prayer requests.
 
+Still being developed, this packages consist of a flutter app a service that serves the app and api.
+
+Currently hosting at ToolsOfWorship.com for testing.
+
 ## License & Copyright
 Copyright 2022 Matthew Hale <FillipMatthew@gmail.com>
 

@@ -19,7 +19,7 @@ class EmailRelay {
         }
       ],
       'from': {
-        'email': 'no-reply@ToolsOfWorship.com',
+        'email': 'no-reply@${Properties.domain}',
         'name': 'Tools of Worship',
       },
       'subject': subject,

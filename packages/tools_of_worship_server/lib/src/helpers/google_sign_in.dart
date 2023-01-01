@@ -92,8 +92,9 @@ class GoogleSignIn {
           basic_utils.X509CertificateData certData =
               basic_utils.X509Utils.x509CertificateFromPem(data[key]);
 
-          if (certData.publicKeyData.bytes != null) {
-            final bytes = hex.decode(certData.publicKeyData.bytes!);
+          if (certData.tbsCertificate?.subjectPublicKeyInfo.bytes != null) {
+            final bytes = hex
+                .decode(certData.tbsCertificate!.subjectPublicKeyInfo.bytes!);
             final rsaKey = basic_utils.CryptoUtils.rsaPublicKeyFromDERBytes(
                 Uint8List.fromList(bytes));
             final pem = basic_utils.CryptoUtils.encodeRSAPublicKeyToPem(rsaKey);

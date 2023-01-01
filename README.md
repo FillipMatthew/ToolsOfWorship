@@ -9,7 +9,7 @@ Currently hosting at ToolsOfWorship.com for testing.
 Server usage:
 > **\-\-https true** To enable https. This will require `server_chain.pem` and `server_key.pem` files in the directory specified by `certificatesUri` in the `properties.dart`.
 
-> **\-\-port \<port\>** To specify which port to listen on. Defaults to 8080 for http or 443 if https is specified.
+> **\-\-port \<port\>** To specify which port to listen on. Defaults to 80 for http or 443 if https is specified.
 
 The server hosts the files in the directory specified by `publicUri` in the `properties.dart`.
 

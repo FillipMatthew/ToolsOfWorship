@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tools_of_worship_client/pages/login.dart';
 import 'package:tools_of_worship_client/tools_of_worship_client.dart';
 
 class ToolsOfWorshipApp extends StatefulWidget {
@@ -17,9 +18,9 @@ class _ToolsOfWorshipAppState extends State<ToolsOfWorshipApp> {
       title: 'Tools of Worship',
       theme: ThemeData.from(colorScheme: defaultColourScheme),
       routes: <String, WidgetBuilder>{
-        Routing.root: (BuildContext context) => const WelcomePage(),
+        Routing.root: (BuildContext context) => const HomePage(),
+        Routing.login: (BuildContext context) => const LoginPage(),
         Routing.signup: (BuildContext context) => const SignupPage(),
-        Routing.home: (BuildContext context) => const HomePage(),
       },
     );
   }

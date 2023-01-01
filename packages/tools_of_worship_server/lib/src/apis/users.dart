@@ -64,7 +64,8 @@ class ApiUsers {
       return Response.forbidden('Authentication failed.');
     }
 
-    final String token = AccountAuthentication.signToken(user.id);
+    final String token =
+        AccountAuthentication.signToken(user.id, Duration(minutes: 15));
 
     // Send token back to the user
     return Response.ok(
@@ -319,12 +320,11 @@ class ApiUsers {
 
   Future<bool> _sendVerificationMail(
       String email, String authDetails, String displayName) async {
-    Map data = {};
-    data['email'] = normalizeEmail(email);
-    data['authDetails'] = authDetails;
-    data['displayName'] = displayName;
-
-    String jsonData = json.encode(data);
+    String jsonData = json.encode({
+      'email': normalizeEmail(email),
+      'authDetails': authDetails,
+      'displayName': displayName
+    });
     String token =
         AccountAuthentication.signToken(jsonData, Duration(minutes: 15));
     String encryptedToken = AccountAuthentication.encryptToken(token);

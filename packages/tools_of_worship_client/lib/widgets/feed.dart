@@ -8,7 +8,7 @@ class Feed extends StatefulWidget {
   const Feed({Key? key}) : super(key: key);
 
   @override
-  _FeedState createState() => _FeedState();
+  State<Feed> createState() => _FeedState();
 }
 
 class _FeedState extends State<Feed> {
@@ -66,8 +66,12 @@ class _FeedState extends State<Feed> {
                         return moreToLoad
                             ? const Center(child: CircularProgressIndicator())
                             : const Padding(
-                              padding:  EdgeInsets.only(left: defaultPadding, right: defaultPadding, top: 30.0, bottom: 30.0),
-                              child: Center(child: Text('No more posts')));
+                                padding: EdgeInsets.only(
+                                    left: defaultPadding,
+                                    right: defaultPadding,
+                                    top: 30.0,
+                                    bottom: 30.0),
+                                child: Center(child: Text('No more posts')));
                       }
                     },
                   ),

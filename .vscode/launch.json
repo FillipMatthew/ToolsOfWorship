@@ -10,7 +10,14 @@
             "request": "launch",
             "type": "dart",
             "program": "lib/main.dart",
-            "args": ["-d", "web-server", "--web-hostname", "localhost", "--web-port", "8000"]
+            "args": [
+                "-d",
+                "web-server",
+                "--web-hostname",
+                "localhost",
+                "--web-port",
+                "8000"
+            ]
         },
         {
             "name": "tools_of_worship_client(edge)",
@@ -18,7 +25,14 @@
             "request": "launch",
             "type": "dart",
             "program": "lib/main.dart",
-            "args": ["-d", "edge", "--web-hostname", "localhost", "--web-port", "8000"]
+            "args": [
+                "-d",
+                "edge",
+                "--web-hostname",
+                "localhost",
+                "--web-port",
+                "8000"
+            ]
         },
         {
             "name": "tools_of_worship_server",
@@ -26,7 +40,11 @@
             "request": "launch",
             "type": "dart",
             "program": "bin/server.dart",
-            "args": ["--enable-vm-service"]
+            "args": [
+                "--enable-vm-service",
+                "--https",
+                "true"
+            ]
         }
     ]
 }

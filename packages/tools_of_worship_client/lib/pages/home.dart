@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tools_of_worship_client/widgets/auth_wrapper.dart';
 
 import 'package:tools_of_worship_client/widgets/feed.dart';
 import 'package:tools_of_worship_client/widgets/new_post.dart';
@@ -27,20 +28,22 @@ class _HomePageState extends State<HomePage> {
     final double screenWidth = MediaQuery.of(context).size.width;
     bool useToolbarMenu = screenWidth <= maxContentWidth;
 
-    return PageWrapper(
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: maxContentWidth),
-          child: Scaffold(
-            body: const Feed(),
-            floatingActionButton: useToolbarMenu
-                ? FloatingActionButton(
-                    child: const Icon(Icons.post_add),
-                    onPressed: () {
-                      _showNewPost();
-                    },
-                  )
-                : null,
+    return AuthWrapper(
+      child: PageWrapper(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: maxContentWidth),
+            child: Scaffold(
+              body: const Feed(),
+              floatingActionButton: useToolbarMenu
+                  ? FloatingActionButton(
+                      child: const Icon(Icons.post_add),
+                      onPressed: () {
+                        _showNewPost();
+                      },
+                    )
+                  : null,
+            ),
           ),
         ),
       ),

@@ -15,8 +15,8 @@ class AccountAuthentication {
 
   static String hashPassword(String password, [String? salt]) {
     if (salt == null) {
-      final _random = Random.secure();
-      var values = List<int>.generate(32, (i) => _random.nextInt(256));
+      final random = Random.secure();
+      var values = List<int>.generate(32, (i) => random.nextInt(256));
       salt = base64.encode(values);
     }
 
@@ -44,7 +44,7 @@ class AccountAuthentication {
       {
         'iat': DateTime.now().millisecondsSinceEpoch,
       },
-      issuer: 'https://ToolsOfWorship.com',
+      issuer: 'https://${Properties.domain}',
       subject: subject,
     );
 

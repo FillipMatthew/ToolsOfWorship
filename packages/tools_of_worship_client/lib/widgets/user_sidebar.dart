@@ -17,8 +17,8 @@ class UserSidebar extends StatelessWidget {
         ),
         const Divider(),
         ElevatedButton(
-          onPressed: () async {
-            await AccountAuthentication().signOut();
+          onPressed: () {
+            AccountAuthentication().signOut();
             Navigator.pushNamedAndRemoveUntil(
                 context, Routing.root, (Route<dynamic> route) => false);
           },

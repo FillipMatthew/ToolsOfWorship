@@ -11,32 +11,16 @@ class AccountAuthentication {
       _authToken != null ? 'Bearer $_authToken' : '';
 
   Future<bool> signInSilent() async {
-    // TODO: Token based auto sign in and if that fails then try Google sign in.
-    try {
-      const storage = FlutterSecureStorage();
-      String? value = await storage.read(key: "useGoogleSignIn");
-      if (value != "true") {
-        return false;
-      }
+    if (isSignedIn) {
+      return true;
+    }
 
-      GoogleSignInHelper helper = GoogleSignInHelper();
-      await helper.autoSignIn();
-      if (helper.currentUser != null) {
-        String? token = await helper.signInToken;
-        if (token == null) {
-          return false;
-        }
-
-        if (await _authenticate(SignInType.googleSignIn, token, null)) {
-          await storage.write(key: "useGoogleSignIn", value: "true");
-          return true;
-        } else {
-          await storage.delete(key: "useGoogleSignIn");
-          return false;
-        }
-      }
-    } catch (_) {
-      return false;
+    // TODO: Implement refresh tokens. Use refresh token to get new auth token. Need auth token to get a refresh token.
+    // Set a timer to use the refresh token to get a new Auth token every 12 minutes. Get a new refresh token every hour if remember signin is used.
+    const storage = FlutterSecureStorage();
+    String? token = await storage.read(key: "signInToken");
+    if (token != null) {
+      return await _authenticate(SignInType.token, token, null);
     }
 
     return false;
@@ -49,34 +33,26 @@ class AccountAuthentication {
   Future<bool> authenticateWithGoogleSignIn() async {
     GoogleSignInHelper helper = GoogleSignInHelper();
     await helper.signIn();
-    if (helper.currentUser != null) {
-      String? token = await helper.signInToken;
-      if (token == null) {
-        throw Exception('Could not retrieve google ID token');
-      }
-
-      if (await _authenticate(SignInType.googleSignIn, token, null)) {
-        const storage = FlutterSecureStorage();
-        await storage.write(key: "useGoogleSignIn", value: "true");
-        return true;
-      } else {
-        const storage = FlutterSecureStorage();
-        await storage.delete(key: 'useGoogleSignIn');
-        return false;
-      }
+    String? token = await helper.signInToken;
+    if (token == null) {
+      throw Exception('Could not retrieve google ID token.');
     }
 
-    throw Exception('An error occured while signing in.');
+    return await _authenticate(SignInType.googleSignIn, token, null);
   }
 
   Future<void> signOut() async {
-    GoogleSignInHelper helper = GoogleSignInHelper();
-    await helper.signOut();
     _authToken = null;
     _displayName = null;
     const storage = FlutterSecureStorage();
-    await storage.delete(key: 'useGoogleSignIn');
+    await storage.delete(key: "signInToken");
+
+    // This honestly seems weird. We may not have signed in with Google.
+    GoogleSignInHelper helper = GoogleSignInHelper();
+    await helper.signOut();
   }
+
+  bool get isSignedIn => _authToken != null && _displayName != null;
 
   String get displayName => _displayName ?? '';
 

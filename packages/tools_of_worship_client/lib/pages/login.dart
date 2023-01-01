@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:sign_button/sign_button.dart';
 import 'package:string_validator/string_validator.dart';
-import 'package:tools_of_worship_client/apis/users.dart';
+import 'package:tools_of_worship_client/helpers/account_authentication.dart';
 import 'package:tools_of_worship_client/tools_of_worship_client.dart';
 
-class SignupPage extends StatefulWidget {
-  const SignupPage({Key? key}) : super(key: key);
+class LoginPage extends StatefulWidget {
+  const LoginPage({Key? key}) : super(key: key);
 
   @override
-  State<SignupPage> createState() => _SignupPageState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
-class _SignupPageState extends State<SignupPage> {
+class _LoginPageState extends State<LoginPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
   bool _visiblePassword = false;
   // String? _error;
-  String? _displayName;
   String? _email;
   String? _password;
 
@@ -84,27 +84,11 @@ class _SignupPageState extends State<SignupPage> {
   }
 
   Widget _content() {
-    //bool bDark = Theme.of(context).colorScheme.brightness == Brightness.dark;
+    bool bDark = Theme.of(context).colorScheme.brightness == Brightness.dark;
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Padding(
-          padding: const EdgeInsets.all(defaultPadding),
-          child: TextFormField(
-            keyboardType: TextInputType.name,
-            validator: _displayNameValidator,
-            textInputAction: TextInputAction.next,
-            onChanged: (val) {
-              _displayName = val;
-            },
-            decoration: const InputDecoration(
-              border: UnderlineInputBorder(),
-              //labelText: 'Full name',
-              hintText: 'Enter full name',
-            ),
-          ),
-        ),
         Padding(
           padding: const EdgeInsets.all(defaultPadding),
           child: TextFormField(
@@ -151,8 +135,19 @@ class _SignupPageState extends State<SignupPage> {
         Padding(
           padding: const EdgeInsets.all(defaultPadding),
           child: ElevatedButton(
-            onPressed: _onSignup,
-            child: const Text('Sign Up'),
+            onPressed: _onSignIn,
+            child: const Text('Sign In'),
+          ),
+        ),
+        const Padding(
+          padding: EdgeInsets.all(defaultPadding),
+          child: Text('or'),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(defaultPadding),
+          child: SignInButton(
+            buttonType: bDark ? ButtonType.googleDark : ButtonType.google,
+            onPressed: _signInWithGoogle,
           ),
         ),
         Padding(
@@ -160,16 +155,16 @@ class _SignupPageState extends State<SignupPage> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('Already have an account?',
+              Text('Don\'t have an account?',
                   style: Theme.of(context).textTheme.bodySmall),
               TextButton(
-                onPressed: _onBackToSignin,
+                onPressed: _onSignup,
                 style: ButtonStyle(
                   backgroundColor:
                       MaterialStateProperty.all(Colors.transparent),
                 ),
                 child:
-                    const Text('Sign in', style: TextStyle(color: Colors.blue)),
+                    const Text('Signup', style: TextStyle(color: Colors.blue)),
               ),
             ],
           ),
@@ -178,37 +173,44 @@ class _SignupPageState extends State<SignupPage> {
     );
   }
 
-  Future<void> _onSignup() async {
+  Future<void> _onSignIn() async {
     if (!_formKey.currentState!.validate()) {
       // setState(() {
-      //   _error = 'Please complete the form to continue signup.';
+      //   _error = 'Please provide a valid email/password combination';
       // });
     } else {
-      if (await ApiUsers.signup(_displayName!, _email!, _password!)) {
-        Navigator.pushNamedAndRemoveUntil(
-            context, Routing.root, (Route<dynamic> route) => false);
-        showMessage(context,
-            'Please check your email account. You need to verify your email address before you can continue.');
-      } else {
-        showError(context, 'An error occured while signing up.');
-        // setState(() {
-        //   _error = '';
-        // });
+      try {
+        if (await AccountAuthentication().signIn(_email!, _password!)) {
+          Navigator.pushNamedAndRemoveUntil(
+              context, Routing.home, (Route<dynamic> route) => false);
+        } else {
+          showError(context, 'An error occured while signing in.');
+        }
+      } on Exception catch (e) {
+        showError(context, e.toString());
       }
+      // setState(() {
+      //   _error = '';
+      // });
     }
   }
 
-  void _onBackToSignin() {
+  void _onSignup() {
     Navigator.pushNamedAndRemoveUntil(
-        context, Routing.root, (Route<dynamic> route) => false);
+        context, Routing.signup, (Route<dynamic> route) => false);
   }
 
-  String? _displayNameValidator(String? displayName) {
-    if (displayName == null || displayName.isEmpty) {
-      return 'Empty name';
+  Future<void> _signInWithGoogle() async {
+    try {
+      if (await AccountAuthentication().authenticateWithGoogleSignIn()) {
+        Navigator.pushNamedAndRemoveUntil(
+            context, Routing.home, (Route<dynamic> route) => false);
+      } else {
+        showError(context, 'An error occured while signing in.');
+      }
+    } on Exception catch (e) {
+      showError(context, e.toString());
     }
-
-    return null;
   }
 
   String? _emailValidator(String? email) {
@@ -222,10 +224,6 @@ class _SignupPageState extends State<SignupPage> {
   String? _validatePassword(String? password) {
     if (password == null || password.isEmpty) {
       return 'Empty password';
-    }
-
-    if (!isLength(password, 8)) {
-      return 'Password must to be 8 or more characters long';
     }
 
     return null;

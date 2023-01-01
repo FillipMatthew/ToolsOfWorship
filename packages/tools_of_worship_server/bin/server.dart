@@ -30,7 +30,7 @@ void main(List<String> args) async {
   final useHttps = httpsString == 'true';
   String portStr = result['port'] ??
       Platform.environment['PORT'] ??
-      (useHttps ? '443' : '8080');
+      (useHttps ? '443' : '80');
   final port = int.tryParse(portStr);
 
   if (port == null) {
@@ -41,21 +41,21 @@ void main(List<String> args) async {
   }
 
   print('Connecting to database.');
-  final _db = await Db.create(Properties.databaseURI);
-  await _db.open();
-  if (_db.isConnected) {
+  final db = await Db.create(Properties.databaseURI);
+  await db.open();
+  if (db.isConnected) {
     print('Database connected.');
   }
 
   Router router = Router()
-    ..mount('/apis/', ToolsOfWorshipApi(_db).handler)
+    ..mount('/apis/', ToolsOfWorshipApi(db).handler)
     ..mount(
       '/',
       createStaticHandler('${Properties.publicUri}/app',
           defaultDocument: 'index.html'),
     );
 
-  final _handler = Pipeline()
+  final handler = Pipeline()
       .addMiddleware(logRequests())
       .addMiddleware(handleCors())
       .addHandler(router);
@@ -68,6 +68,6 @@ void main(List<String> args) async {
       ..usePrivateKey('${Properties.certificatesUri}/server_key.pem');
   }
 
-  withHotreload(() => serve(_handler, InternetAddress.anyIPv4, port,
+  withHotreload(() => serve(handler, InternetAddress.anyIPv4, port,
       securityContext: securityContext));
 }

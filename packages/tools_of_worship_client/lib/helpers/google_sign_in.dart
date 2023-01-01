@@ -17,18 +17,8 @@ class GoogleSignInHelper {
     ],
   );
 
-  Future<String> signIn() async {
-    try {
-      if (!await _googleSignIn.isSignedIn() &&
-          await _googleSignIn.signInSilently() == null &&
-          await _googleSignIn.signIn() == null) {
-        return "Error: Sign in failed.";
-      }
-
-      return 'OK';
-    } catch (error) {
-      return 'Error: $error';
-    }
+  Future<bool> signIn() async {
+    return (await _googleSignIn.signIn()) != null;
   }
 
   Future<void> autoSignIn() async {
@@ -39,14 +29,6 @@ class GoogleSignInHelper {
     await _googleSignIn.signOut();
   }
 
-  GoogleSignInAccount? get currentUser => _googleSignIn.currentUser;
-
-  Future<String?> get signInToken async {
-    GoogleSignInAccount? acc = currentUser;
-    if (acc == null) {
-      return null;
-    }
-
-    return (await acc.authentication).idToken;
-  }
+  Future<String?> get signInToken async =>
+      (await _googleSignIn.currentUser?.authentication)?.idToken;
 }

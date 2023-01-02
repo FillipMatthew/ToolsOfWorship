@@ -1,12 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:mongo_dart/mongo_dart.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
+import 'package:tools_of_worship_server/src/interfaces/circles_data_provider.dart';
 import 'package:tools_of_worship_server/src/interfaces/fellowships_data_provider.dart';
 import 'package:tools_of_worship_server/src/interfaces/feed_data_provider.dart';
 import 'package:tools_of_worship_server/src/interfaces/users_data_provider.dart';
+import 'package:tools_of_worship_server/src/types/circle.dart';
 import 'package:tools_of_worship_server/src/types/fellowship.dart';
 import 'package:tools_of_worship_server/src/types/post.dart';
 import 'package:tools_of_worship_server/src/types/user.dart';
@@ -16,18 +17,17 @@ class ApiFeed {
   final FeedDataProvider _feedProvider;
   final UsersDataProvider _usersProvider;
   final FellowshipsDataProvider _fellowshipsProvider;
-  final DbCollection _circlesCollection;
+  final CirclesDataProvider _circlesProvider;
 
   ApiFeed(
       FeedDataProvider feedProvider,
       UsersDataProvider usersProvider,
       FellowshipsDataProvider fellowshipsProvider,
-      DbCollection circles,
-      DbCollection circleMembers)
+      CirclesDataProvider circlesProvider)
       : _feedProvider = feedProvider,
         _usersProvider = usersProvider,
         _fellowshipsProvider = fellowshipsProvider,
-        _circlesCollection = circles;
+        _circlesProvider = circlesProvider;
 
   Router get router {
     Router router = Router();
@@ -107,10 +107,8 @@ class ApiFeed {
         if (circleNamesCache.containsKey(item.circleId)) {
           feedName += '(${circleNamesCache[item.circleId] ?? ''})';
         } else {
-          var circlesEntry =
-              await _circlesCollection.findOne(where.eq('id', item.circleId));
-          String? name =
-              circleNamesCache[item.circleId!] = circlesEntry?['name'];
+          Circle? circle = await _circlesProvider.getCircle(item.circleId!);
+          String? name = circleNamesCache[item.circleId!] = circle?.name;
           feedName += '(${name ?? ''})';
         }
       }

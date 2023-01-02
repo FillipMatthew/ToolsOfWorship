@@ -1,22 +1,24 @@
 import 'package:mongo_dart/mongo_dart.dart';
+import 'package:tools_of_worship_server/src/interfaces/circles_data_provider.dart';
 import 'package:tools_of_worship_server/src/interfaces/fellowships_data_provider.dart';
 import 'package:tools_of_worship_server/src/interfaces/feed_data_provider.dart';
 import 'package:tools_of_worship_server/src/types/access_level.dart';
+import 'package:tools_of_worship_server/src/types/circle.dart';
 import 'package:tools_of_worship_server/src/types/fellowship.dart';
 import 'package:tools_of_worship_server/src/types/post.dart';
 
 class FeedDatabase implements FeedDataProvider {
   final DbCollection _postsCollection;
   final FellowshipsDataProvider _fellowshipsDataProvider;
-  final DbCollection _circleMembersCollection;
+  final CirclesDataProvider _circlesDataProvider;
 
   FeedDatabase(
       DbCollection posts,
       FellowshipsDataProvider fellowshipsDataProvider,
-      DbCollection circleMembersCollection)
+      CirclesDataProvider circlesDataProvider)
       : _postsCollection = posts,
         _fellowshipsDataProvider = fellowshipsDataProvider,
-        _circleMembersCollection = circleMembersCollection;
+        _circlesDataProvider = circlesDataProvider;
 
   @override
   Stream<Post> getPosts(
@@ -29,12 +31,12 @@ class FeedDatabase implements FeedDataProvider {
       fellowshipIds.add(item.id);
     }
 
+    Stream<Circle> circles =
+        _circlesDataProvider.getUserCircles(userId, AccessLevel.readOnly);
+
     List<String> circleIds = <String>[];
-    var circleMembersResult =
-        _circleMembersCollection.find(where.eq('userId', userId));
-    await for (var item in circleMembersResult) {
-      String id = item['circleId'];
-      circleIds.add(id);
+    await for (Circle item in circles) {
+      circleIds.add(item.id);
     }
 
     SelectorBuilder selectorBuilder = where;

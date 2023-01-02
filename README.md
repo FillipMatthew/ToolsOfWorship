@@ -1,6 +1,6 @@
 # Tools of Worship
 
-A simple app for sharing news and prayer requests.
+A simple app for sharing church news and prayer requests.
 
 Still being developed, this project contains 2 packages, a flutter app and a service that serves the app and api.
 

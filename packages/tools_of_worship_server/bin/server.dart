@@ -9,16 +9,6 @@ import 'package:shelf_router/shelf_router.dart';
 import 'package:shelf_static/shelf_static.dart';
 import 'package:tools_of_worship_server/tools_of_worship_server.dart';
 
-// ..get('/', _rootHandler);
-// ..get('/oauth2callback', oauth2callback);
-// shelf.Response _rootHandler(shelf.Request request) {
-//   Map<String, String> headers = {'location': '/oauth2callback'};
-//   return shelf.Response(302, headers: headers);
-// }
-// shelf.Response oauth2callback(shelf.Request request) {
-//   return shelf.Response.ok('Redirected!\n');
-// }
-
 void main(List<String> args) async {
   ArgParser parser = ArgParser()
     ..addOption('https')

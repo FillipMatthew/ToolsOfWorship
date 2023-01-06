@@ -8,17 +8,18 @@ import 'package:tools_of_worship_client/config/properties.dart';
 import 'package:tools_of_worship_client/helpers/account_authentication.dart';
 
 class ApiFeed {
-  static Future<List<FeedPost>> getList({int? limit, String? before, String? after}) async {
+  static Stream<FeedPost> getList(
+      {int? limit, String? before, String? after}) async* {
     Map<String, dynamic> data = {};
-    if (limit != null){
+    if (limit != null) {
       data['limit'] = limit;
     }
 
-    if (before != null && DateTime.tryParse(before) != null){
+    if (before != null && DateTime.tryParse(before) != null) {
       data['before'] = before;
     }
 
-    if (after != null && DateTime.tryParse(after) != null){
+    if (after != null && DateTime.tryParse(after) != null) {
       data['after'] = after;
     }
 
@@ -32,14 +33,14 @@ class ApiFeed {
     );
 
     if (response.statusCode == HttpStatus.ok) {
-        List<FeedPost> feedList = [];
-        for (Map<String, dynamic> item in json.decode(response.body)) {
-          try {
-            feedList.add(FeedPost.fromJson(item));
-          } catch (_) {}
+      List<Map<String, dynamic>> jsonData = json.decode(response.body);
+      for (Map<String, dynamic> item in jsonData) {
+        try {
+          yield FeedPost.fromJson(item);
+        } catch (_) {
+          throw Exception('Invalid response');
         }
-
-        return feedList;
+      }
     } else if (response.statusCode == HttpStatus.forbidden) {
       throw Exception('Unauthorised');
     }

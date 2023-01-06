@@ -13,17 +13,17 @@ class Feed extends StatefulWidget {
 
 class _FeedState extends State<Feed> {
   static const int _defaultFeedFetchLimit = 15;
-  List<FeedPost> posts = [];
-  final ScrollController controller = ScrollController();
-  bool moreToLoad = true;
-  bool isLoading = false;
+  final List<FeedPost> _posts = [];
+  final ScrollController _controller = ScrollController();
+  bool _moreToLoad = true;
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
 
-    controller.addListener(() {
-      if (controller.position.maxScrollExtent == controller.offset) {
+    _controller.addListener(() {
+      if (_controller.position.maxScrollExtent == _controller.offset) {
         _fetchMore();
       }
     });
@@ -33,7 +33,7 @@ class _FeedState extends State<Feed> {
 
   @override
   void dispose() {
-    controller.dispose();
+    _controller.dispose();
 
     super.dispose();
   }
@@ -50,20 +50,20 @@ class _FeedState extends State<Feed> {
           ),
         ),
         Expanded(
-          child: posts.isEmpty
+          child: _posts.isEmpty
               ? const Center(child: CircularProgressIndicator())
               : RefreshIndicator(
                   onRefresh: _onRefresh,
                   child: ListView.builder(
                     padding: const EdgeInsets.all(defaultPadding),
-                    controller: controller,
+                    controller: _controller,
                     shrinkWrap: true,
-                    itemCount: posts.length + 1,
+                    itemCount: _posts.length + 1,
                     itemBuilder: (BuildContext context, int index) {
-                      if (index < posts.length) {
-                        return FeedEntry(posts[index]);
+                      if (index < _posts.length) {
+                        return FeedEntry(_posts[index]);
                       } else {
-                        return moreToLoad
+                        return _moreToLoad
                             ? const Center(child: CircularProgressIndicator())
                             : const Padding(
                                 padding: EdgeInsets.only(
@@ -82,55 +82,58 @@ class _FeedState extends State<Feed> {
   }
 
   Future _onRefresh() async {
-    if (isLoading) {
+    if (_isLoading) {
       return;
     }
 
-    isLoading = true;
+    _isLoading = true;
 
     try {
-      List<FeedPost> result =
-          await ApiFeed.getList(limit: _defaultFeedFetchLimit);
+      Stream<FeedPost> result = ApiFeed.getList(limit: _defaultFeedFetchLimit);
 
-      setState(() {
-        posts = result;
-        moreToLoad = result.length == _defaultFeedFetchLimit;
-        isLoading = false;
-      });
+      int count = 0;
+      await for (FeedPost post in result) {
+        setState(() {
+          _posts.add(post);
+          ++count;
+          _moreToLoad = count == _defaultFeedFetchLimit;
+        });
+      }
+
+      _isLoading = false;
     } catch (_) {
-      isLoading = false;
+      _isLoading = false;
     }
   }
 
   Future _fetchMore() async {
-    if (isLoading) {
+    if (_isLoading) {
       return;
     }
 
-    isLoading = true;
+    _isLoading = true;
 
     try {
-      List<FeedPost> result;
-      if (posts.isNotEmpty) {
-        result = await ApiFeed.getList(
-            limit: _defaultFeedFetchLimit, before: posts.last.dateTimeString);
+      Stream<FeedPost> result;
+      if (_posts.isNotEmpty) {
+        result = ApiFeed.getList(
+            limit: _defaultFeedFetchLimit, before: _posts.last.dateTimeString);
       } else {
-        result = await ApiFeed.getList(limit: _defaultFeedFetchLimit);
+        result = ApiFeed.getList(limit: _defaultFeedFetchLimit);
       }
 
-      setState(() {
-        if (result.isNotEmpty) {
-          posts.addAll(result);
-        } else {
-          moreToLoad = false;
-        }
+      int count = 0;
+      await for (FeedPost post in result) {
+        setState(() {
+          _posts.add(post);
+          ++count;
+          _moreToLoad = count == _defaultFeedFetchLimit;
+        });
+      }
 
-        moreToLoad = result.length == _defaultFeedFetchLimit;
-
-        isLoading = false;
-      });
+      _isLoading = false;
     } catch (_) {
-      isLoading = false;
+      _isLoading = false;
     }
   }
 }

@@ -14,15 +14,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  OverlayEntry? _newPostOverlay;
-
-  @override
-  void dispose() {
-    _hideNewPost();
-
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
@@ -37,10 +28,8 @@ class _HomePageState extends State<HomePage> {
               body: const Feed(),
               floatingActionButton: useToolbarMenu
                   ? FloatingActionButton(
+                      onPressed: () => _showNewPost(context),
                       child: const Icon(Icons.post_add),
-                      onPressed: () {
-                        _showNewPost();
-                      },
                     )
                   : null,
             ),
@@ -50,52 +39,39 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _showNewPost() {
-    if (_newPostOverlay != null) {
-      return;
-    }
-
-    _newPostOverlay = OverlayEntry(
+  Future<void> _showNewPost(BuildContext context) {
+    return showDialog<void>(
+      barrierColor: Colors.transparent,
+      context: context,
       builder: (context) {
-        final double screenWidth = MediaQuery.of(context).size.width;
-        final double width = screenWidth <= maxContentWidth
-            ? screenWidth - (defaultPadding * 2)
-            : maxContentWidth - (defaultPadding * 2);
-        final double sidePadding = (screenWidth - width) / 2.0;
-
-        return Positioned(
-          left: sidePadding,
-          right: sidePadding,
-          bottom: defaultPadding,
-          top: 60.0,
-          child: Card(
-            color:
-                Theme.of(context).cardColor.withOpacity(defaultOverlayOpacity),
-            elevation: defaultMenuElevation,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15.0),
-            ),
+        return Dialog(
+          insetPadding: EdgeInsets.zero,
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: maxContentWidth),
             child: Padding(
-              padding: const EdgeInsets.all(defaultPadding),
-              child: NewPost(
-                onCompleted: _onNewPostComplete,
+              padding: const EdgeInsets.fromLTRB(
+                  defaultPadding, 60, defaultPadding, defaultPadding),
+              child: Card(
+                color: Theme.of(context)
+                    .cardColor
+                    .withOpacity(defaultOverlayOpacity),
+                elevation: defaultMenuElevation,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15.0),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(defaultPadding),
+                  child: NewPost(onCompleted: (cancelled) {
+                    Navigator.of(context).pop();
+                  }),
+                ),
               ),
             ),
           ),
         );
       },
     );
-
-    final overlay = Overlay.of(context);
-    overlay?.insert(_newPostOverlay!);
-  }
-
-  void _hideNewPost() {
-    _newPostOverlay?.remove();
-    _newPostOverlay = null;
-  }
-
-  void _onNewPostComplete(bool cancelled) {
-    _hideNewPost();
   }
 }

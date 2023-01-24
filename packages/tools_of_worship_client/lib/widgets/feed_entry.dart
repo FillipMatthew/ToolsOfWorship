@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:tools_of_worship_client/config/styling.dart';
-import 'package:tools_of_worship_client/apis/types/feed_post.dart';
+import 'package:tools_of_worship_client/apis/types/post.dart';
 import 'package:tools_of_worship_client/helpers/strings.dart';
 
 class FeedEntry extends StatelessWidget {
-  final FeedPost _entry;
+  final Post _entry;
 
-  const FeedEntry(FeedPost entry, {Key? key})
+  const FeedEntry(Post entry, {Key? key})
       : _entry = entry,
         super(key: key);
 
@@ -22,8 +22,8 @@ class FeedEntry extends StatelessWidget {
           children: [
             Align(
               alignment: Alignment.centerRight,
-              child: Text(formatDateTimeString(_entry.dateTime)
-                ,
+              child: Text(
+                formatDateTimeString(_entry.dateTime),
                 style: Theme.of(context).textTheme.caption,
               ),
             ),

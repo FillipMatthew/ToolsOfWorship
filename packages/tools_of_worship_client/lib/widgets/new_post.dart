@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:tools_of_worship_client/apis/fellowships.dart';
+import 'package:tools_of_worship_client/apis/types/fellowship.dart';
 import 'package:tools_of_worship_client/config/styling.dart';
 
-class NewPost extends StatelessWidget {
+class NewPost extends StatefulWidget {
   final Function(bool cancelled)? _onCompleted;
 
   const NewPost({Function(bool cancelled)? onCompleted, Key? key})
@@ -9,42 +11,87 @@ class NewPost extends StatelessWidget {
         super(key: key);
 
   @override
+  State<NewPost> createState() => _NewPostState();
+}
+
+class _NewPostState extends State<NewPost> {
+  String? _title;
+  String? _selectedFellowshipId;
+  String? _selectedFellowshipName;
+  String? _article;
+  bool _noFellowships = false;
+  List<Fellowship>? _fellowships;
+
+  @override
+  void initState() {
+    super.initState();
+
+    ApiFellowships.getList().toList().then((fellowships) {
+      setState(() {
+        _noFellowships = fellowships.isEmpty;
+        _fellowships = fellowships;
+      });
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Center(
-          child: Text("New post"),
+        Center(
+          child: Text(
+            "New post",
+            style: Theme.of(context).textTheme.headlineSmall,
+          ),
         ),
         const Divider(),
         Expanded(
           child: Column(
-            children: const [
+            children: [
               Padding(
-                padding: EdgeInsets.all(defaultPadding),
+                padding: const EdgeInsets.all(defaultPadding),
+                child: DropdownButtonHideUnderline(
+                  child: _buildDropdown(context),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(defaultPadding),
                 child: TextField(
                   keyboardType: TextInputType.text,
                   textInputAction: TextInputAction.next,
-                  decoration: InputDecoration(
+                  style: Theme.of(context).textTheme.bodySmall,
+                  decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                     floatingLabelBehavior: FloatingLabelBehavior.always,
                     labelText: 'Title',
                   ),
+                  onChanged: (value) {
+                    setState(() {
+                      _title = value.isEmpty ? null : value;
+                    });
+                  },
                 ),
               ),
               Expanded(
                 child: Padding(
-                  padding: EdgeInsets.all(defaultPadding),
+                  padding: const EdgeInsets.all(defaultPadding),
                   child: TextField(
                     expands: true,
                     maxLines: null,
                     textAlignVertical: TextAlignVertical.top,
                     keyboardType: TextInputType.multiline,
-                    decoration: InputDecoration(
+                    style: Theme.of(context).textTheme.bodySmall,
+                    decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       floatingLabelBehavior: FloatingLabelBehavior.always,
                       labelText: 'Article',
                     ),
+                    onChanged: (value) {
+                      setState(() {
+                        _article = value.isEmpty ? null : value;
+                      });
+                    },
                   ),
                 ),
               ),
@@ -61,7 +108,11 @@ class NewPost extends StatelessWidget {
                 child: const Text('Cancel'),
               ),
               ElevatedButton(
-                onPressed: onPost,
+                onPressed: (_title == null ||
+                        _selectedFellowshipId == null ||
+                        _article == null)
+                    ? null
+                    : onPost,
                 child: const Text('Post'),
               ),
             ],
@@ -71,15 +122,62 @@ class NewPost extends StatelessWidget {
     );
   }
 
+  Widget _buildDropdown(BuildContext context) {
+    if (_fellowships == null) {
+      return Text(
+        "Loading fellowships list.",
+        style: TextStyle(
+          color: Theme.of(context).errorColor,
+        ),
+      );
+    }
+
+    if (_noFellowships || _fellowships!.isEmpty) {
+      return Text(
+        "You need to be part of a fellowship to post.",
+        style: TextStyle(
+          color: Theme.of(context).errorColor,
+        ),
+      );
+    }
+
+    List<DropdownMenuItem<MapEntry<String, String>>> items = [];
+    for (int i = 0; i < _fellowships!.length; ++i) {
+      items.add(
+        DropdownMenuItem(
+          value: MapEntry(_fellowships![i].id, _fellowships![i].name),
+          child: Row(
+            children: [
+              Text(_fellowships![i].name),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return DropdownButton<MapEntry<String, String>>(
+      items: items,
+      onChanged: (selected) {
+        _selectedFellowshipId = selected?.key;
+        setState(() {
+          _selectedFellowshipName = selected?.value;
+        });
+      },
+      hint: _selectedFellowshipName == null
+          ? const Text("Select a fellowship")
+          : Text(_selectedFellowshipName!),
+    );
+  }
+
   void onCancel() {
-    if (_onCompleted != null) {
-      _onCompleted!(true);
+    if (widget._onCompleted != null) {
+      widget._onCompleted!(true);
     }
   }
 
   void onPost() {
-    if (_onCompleted != null) {
-      _onCompleted!(false);
+    if (widget._onCompleted != null) {
+      widget._onCompleted!(false);
     }
   }
 }

@@ -23,12 +23,4 @@ class Fellowship {
   String? get creatorId => _creatorId;
 
   bool get isValid => _id != null && _name != null && _creatorId != null;
-
-  Map<String, dynamic> toJson() => isValid
-      ? {
-          'id': _id,
-          'name': _name,
-          'creatorId': _creatorId,
-        }
-      : {};
 }

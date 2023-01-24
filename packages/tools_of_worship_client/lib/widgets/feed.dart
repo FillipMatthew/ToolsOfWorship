@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tools_of_worship_client/apis/feed.dart';
 import 'package:tools_of_worship_client/config/styling.dart';
-import 'package:tools_of_worship_client/apis/types/feed_post.dart';
+import 'package:tools_of_worship_client/apis/types/post.dart';
 import 'package:tools_of_worship_client/widgets/feed_entry.dart';
 
 class Feed extends StatefulWidget {
@@ -13,7 +13,7 @@ class Feed extends StatefulWidget {
 
 class _FeedState extends State<Feed> {
   static const int _defaultFeedFetchLimit = 15;
-  final List<FeedPost> _posts = [];
+  final List<Post> _posts = [];
   final ScrollController _controller = ScrollController();
   bool _moreToLoad = true;
   bool _isLoading = false;
@@ -89,10 +89,10 @@ class _FeedState extends State<Feed> {
     _isLoading = true;
 
     try {
-      Stream<FeedPost> result = ApiFeed.getList(limit: _defaultFeedFetchLimit);
+      Stream<Post> result = ApiFeed.getList(limit: _defaultFeedFetchLimit);
 
       int count = 0;
-      await for (FeedPost post in result) {
+      await for (Post post in result) {
         setState(() {
           _posts.add(post);
           ++count;
@@ -114,7 +114,7 @@ class _FeedState extends State<Feed> {
     _isLoading = true;
 
     try {
-      Stream<FeedPost> result;
+      Stream<Post> result;
       if (_posts.isNotEmpty) {
         result = ApiFeed.getList(
             limit: _defaultFeedFetchLimit, before: _posts.last.dateTimeString);
@@ -123,7 +123,7 @@ class _FeedState extends State<Feed> {
       }
 
       int count = 0;
-      await for (FeedPost post in result) {
+      await for (Post post in result) {
         setState(() {
           _posts.add(post);
           ++count;

@@ -71,22 +71,14 @@ class ApiFellowships {
 
     String? userId = request.context['authDetails'] as String;
 
-    final payload = await request.readAsString();
-
     try {
-      dynamic data = json.decode(payload);
-
       Stream<Fellowship> userFellowships = _fellowshipsDataProvider
           .getUserFellowships(userId, AccessLevel.readOnly);
 
       List<Map<String, dynamic>> fellowships = [];
       await for (Fellowship fellowship in userFellowships) {
         if (fellowship.isValid) {
-          fellowships.add({
-            'id': fellowship.id,
-            'name': fellowship.name,
-            'creatorId': fellowship.creatorId,
-          });
+          fellowships.add(fellowship.toJson());
         }
       }
 

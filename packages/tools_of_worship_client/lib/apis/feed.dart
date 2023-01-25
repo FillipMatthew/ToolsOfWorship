@@ -49,4 +49,34 @@ class ApiFeed {
 
     throw Exception('Unexpected error');
   }
+
+  static Future<void> postPost(
+      String fellowshipId, String heading, String article) async {
+    if (fellowshipId.isEmpty || heading.isEmpty || article.isEmpty) {
+      throw Exception('Invalid data');
+    }
+
+    Map<String, dynamic> data = {
+      'fellowshipId': fellowshipId,
+      'heading': heading,
+      'article': article,
+    };
+
+    final http.Response response = await http.post(
+      Uri.parse('${Properties.apiHost}/apis/Feed/Post'),
+      headers: {
+        HttpHeaders.authorizationHeader: AccountAuthentication.authHeaderString,
+        HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
+      },
+      body: json.encode(data),
+    );
+
+    if (response.statusCode == HttpStatus.ok) {
+      return;
+    } else if (response.statusCode == HttpStatus.forbidden) {
+      throw Exception('Unauthorised');
+    }
+
+    throw Exception('Unexpected error');
+  }
 }

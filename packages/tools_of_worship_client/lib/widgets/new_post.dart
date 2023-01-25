@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tools_of_worship_client/apis/feed.dart';
 import 'package:tools_of_worship_client/apis/fellowships.dart';
 import 'package:tools_of_worship_client/apis/types/fellowship.dart';
 import 'package:tools_of_worship_client/config/styling.dart';
@@ -15,7 +16,7 @@ class NewPost extends StatefulWidget {
 }
 
 class _NewPostState extends State<NewPost> {
-  String? _title;
+  String? _heading;
   String? _selectedFellowshipId;
   String? _selectedFellowshipName;
   String? _article;
@@ -41,7 +42,7 @@ class _NewPostState extends State<NewPost> {
       children: [
         Center(
           child: Text(
-            "New post",
+            'New post',
             style: Theme.of(context).textTheme.headlineSmall,
           ),
         ),
@@ -64,11 +65,11 @@ class _NewPostState extends State<NewPost> {
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                     floatingLabelBehavior: FloatingLabelBehavior.always,
-                    labelText: 'Title',
+                    labelText: 'Heading',
                   ),
                   onChanged: (value) {
                     setState(() {
-                      _title = value.isEmpty ? null : value;
+                      _heading = value.isEmpty ? null : value;
                     });
                   },
                 ),
@@ -108,7 +109,7 @@ class _NewPostState extends State<NewPost> {
                 child: const Text('Cancel'),
               ),
               ElevatedButton(
-                onPressed: (_title == null ||
+                onPressed: (_heading == null ||
                         _selectedFellowshipId == null ||
                         _article == null)
                     ? null
@@ -125,7 +126,7 @@ class _NewPostState extends State<NewPost> {
   Widget _buildDropdown(BuildContext context) {
     if (_fellowships == null) {
       return Text(
-        "Loading fellowships list.",
+        'Loading fellowships list.',
         style: TextStyle(
           color: Theme.of(context).errorColor,
         ),
@@ -134,7 +135,7 @@ class _NewPostState extends State<NewPost> {
 
     if (_noFellowships || _fellowships!.isEmpty) {
       return Text(
-        "You need to be part of a fellowship to post.",
+        'You need to be part of a fellowship to post.',
         style: TextStyle(
           color: Theme.of(context).errorColor,
         ),
@@ -164,7 +165,7 @@ class _NewPostState extends State<NewPost> {
         });
       },
       hint: _selectedFellowshipName == null
-          ? const Text("Select a fellowship")
+          ? const Text('Select a fellowship')
           : Text(_selectedFellowshipName!),
     );
   }
@@ -175,8 +176,19 @@ class _NewPostState extends State<NewPost> {
     }
   }
 
-  void onPost() {
+  void onPost() async {
     if (widget._onCompleted != null) {
+      if (_selectedFellowshipId == null ||
+          _selectedFellowshipId!.isEmpty ||
+          _heading == null ||
+          _heading!.isEmpty ||
+          _article == null ||
+          _article!.isEmpty) {
+        throw Exception('Data unexpectedly empty');
+      }
+
+      await ApiFeed.postPost(_selectedFellowshipId!, _heading!, _article!);
+
       widget._onCompleted!(false);
     }
   }

@@ -46,7 +46,7 @@ class ApiFellowships {
 
       if (!await _fellowshipsDataProvider.create(fellowshipId, name, userId)) {
         return Response.internalServerError(
-            body: "Failed to create fellowship.");
+            body: 'Failed to create fellowship.');
       }
 
       return Response.ok(

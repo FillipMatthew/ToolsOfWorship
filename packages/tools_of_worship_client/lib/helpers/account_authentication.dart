@@ -18,7 +18,7 @@ class AccountAuthentication {
     // TODO: Implement refresh tokens. Use refresh token to get new auth token. Need auth token to get a refresh token.
     // Set a timer to use the refresh token to get a new Auth token every 12 minutes. Get a new refresh token every hour if remember signin is used.
     const storage = FlutterSecureStorage();
-    String? token = await storage.read(key: "signInToken");
+    String? token = await storage.read(key: 'signInToken');
     if (token != null) {
       return await _authenticate(SignInType.token, token, null);
     }
@@ -45,7 +45,7 @@ class AccountAuthentication {
     _authToken = null;
     _displayName = null;
     const storage = FlutterSecureStorage();
-    await storage.delete(key: "signInToken");
+    await storage.delete(key: 'signInToken');
 
     // This honestly seems weird. We may not have signed in with Google.
     GoogleSignInHelper helper = GoogleSignInHelper();

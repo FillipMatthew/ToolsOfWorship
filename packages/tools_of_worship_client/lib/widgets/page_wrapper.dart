@@ -86,7 +86,9 @@ class _PageWrapperState extends State<PageWrapper>
             duration: _animationDuration,
             opacity: _isOpen ? 1.0 : 0.0,
             child: Card(
-              color: Theme.of(context).cardColor.withOpacity(defaultOverlayOpacity),
+              color: Theme.of(context)
+                  .cardColor
+                  .withOpacity(defaultOverlayOpacity),
               elevation: defaultMenuElevation,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15.0),
@@ -102,7 +104,7 @@ class _PageWrapperState extends State<PageWrapper>
     );
 
     final overlay = Overlay.of(context);
-    overlay?.insert(_userSideBar!);
+    overlay.insert(_userSideBar!);
   }
 
   void _hideUserSidebar() {

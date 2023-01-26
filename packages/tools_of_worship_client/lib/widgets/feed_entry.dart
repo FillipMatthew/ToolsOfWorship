@@ -24,7 +24,7 @@ class FeedEntry extends StatelessWidget {
               alignment: Alignment.centerRight,
               child: Text(
                 formatDateTimeString(_entry.dateTime),
-                style: Theme.of(context).textTheme.caption,
+                style: Theme.of(context).textTheme.bodySmall,
               ),
             ),
             Card(
@@ -42,11 +42,11 @@ class FeedEntry extends StatelessWidget {
               children: [
                 Text(
                   _entry.author,
-                  style: Theme.of(context).textTheme.caption,
+                  style: Theme.of(context).textTheme.bodySmall,
                 ),
                 Text(
                   _entry.feedName,
-                  style: Theme.of(context).textTheme.caption,
+                  style: Theme.of(context).textTheme.bodySmall,
                 ),
               ],
             ),

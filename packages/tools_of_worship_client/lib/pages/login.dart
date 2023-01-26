@@ -181,10 +181,14 @@ class _LoginPageState extends State<LoginPage> {
     } else {
       try {
         if (await AccountAuthentication().signIn(_email!, _password!)) {
-          Navigator.pushNamedAndRemoveUntil(
-              context, Routing.home, (Route<dynamic> route) => false);
+          if (context.mounted) {
+            Navigator.pushNamedAndRemoveUntil(
+                context, Routing.home, (Route<dynamic> route) => false);
+          }
         } else {
-          showError(context, 'An error occured while signing in.');
+          if (context.mounted) {
+            showError(context, 'An error occured while signing in.');
+          }
         }
       } on Exception catch (e) {
         showError(context, e.toString());
@@ -203,10 +207,14 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> _signInWithGoogle() async {
     try {
       if (await AccountAuthentication().authenticateWithGoogleSignIn()) {
-        Navigator.pushNamedAndRemoveUntil(
-            context, Routing.home, (Route<dynamic> route) => false);
+        if (context.mounted) {
+          Navigator.pushNamedAndRemoveUntil(
+              context, Routing.home, (Route<dynamic> route) => false);
+        }
       } else {
-        showError(context, 'An error occured while signing in.');
+        if (context.mounted) {
+          showError(context, 'An error occured while signing in.');
+        }
       }
     } on Exception catch (e) {
       showError(context, e.toString());

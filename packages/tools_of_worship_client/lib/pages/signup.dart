@@ -185,12 +185,16 @@ class _SignupPageState extends State<SignupPage> {
       // });
     } else {
       if (await ApiUsers.signup(_displayName!, _email!, _password!)) {
-        Navigator.pushNamedAndRemoveUntil(
-            context, Routing.root, (Route<dynamic> route) => false);
-        showMessage(context,
-            'Please check your email account. You need to verify your email address before you can continue.');
+        if (context.mounted) {
+          Navigator.pushNamedAndRemoveUntil(
+              context, Routing.root, (Route<dynamic> route) => false);
+          showMessage(context,
+              'Please check your email account. You need to verify your email address before you can continue.');
+        }
       } else {
-        showError(context, 'An error occured while signing up.');
+        if (context.mounted) {
+          showError(context, 'An error occured while signing up.');
+        }
         // setState(() {
         //   _error = '';
         // });

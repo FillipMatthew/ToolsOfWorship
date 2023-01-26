@@ -128,7 +128,7 @@ class _NewPostState extends State<NewPost> {
       return Text(
         'Loading fellowships list.',
         style: TextStyle(
-          color: Theme.of(context).errorColor,
+          color: Theme.of(context).colorScheme.error,
         ),
       );
     }
@@ -137,7 +137,7 @@ class _NewPostState extends State<NewPost> {
       return Text(
         'You need to be part of a fellowship to post.',
         style: TextStyle(
-          color: Theme.of(context).errorColor,
+          color: Theme.of(context).colorScheme.error,
         ),
       );
     }

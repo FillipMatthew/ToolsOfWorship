@@ -25,15 +25,36 @@ scripts:
   #   run: |
   #     dart pub global run flutter_plugin_tools format
 
+  update:all:
+    run:
+      melos run update:client_packages --no-select &&
+      melos run update:server_packages --no-select
+
+  update:client_packages:
+    run:
+      melos exec -c 1 --fail-fast -- "flutter pub get && flutter pub upgrade"
+    select-package:
+      flutter: true
+      scope: "*tools_of_worship_client*"
+
+  update:server_packages:
+    run:
+      melos exec -c 1 --fail-fast -- "dart pub get && dart pub upgrade"
+    select-package:
+      flutter: false
+      scope: "*tools_of_worship_server*"
+
   build:all:
-    run: |
-      melos run build:client_web --no-select && \
+    run:
+      melos run build:client_web --no-select &&
       melos bootstrap
     description: Build all packages.
 
   build:client_web:
-    run: |
-      melos exec -c 1 --fail-fast -- "flutter build web --release" && rmdir /s /Q "./publish/public/app" && Xcopy "./packages/tools_of_worship_client/build/web" "./publish/public/app" /E /H /C /I
+    run:
+      melos exec -c 1 --fail-fast -- "flutter build web --release" &&
+      rmdir /s /Q "./publish/public/app" &&
+      Xcopy "./packages/tools_of_worship_client/build/web" "./publish/public/app" /E /H /C /I
     description: Build a client web app
     select-package:
       flutter: true

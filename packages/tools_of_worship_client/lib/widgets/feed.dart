@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:tools_of_worship_client/apis/feed.dart';
+import 'package:provider/provider.dart';
+import 'package:tools_of_worship_api/tools_of_worship_client_api.dart';
 import 'package:tools_of_worship_client/config/styling.dart';
-import 'package:tools_of_worship_client/apis/types/post.dart';
 import 'package:tools_of_worship_client/widgets/feed_entry.dart';
 
 class Feed extends StatefulWidget {
@@ -89,7 +89,8 @@ class _FeedState extends State<Feed> {
     _isLoading = true;
 
     try {
-      Stream<Post> result = ApiFeed.getList(limit: _defaultFeedFetchLimit);
+      Stream<Post> result =
+          context.read<ApiFeed>().getList(limit: _defaultFeedFetchLimit);
 
       int count = 0;
       await for (Post post in result) {
@@ -116,10 +117,10 @@ class _FeedState extends State<Feed> {
     try {
       Stream<Post> result;
       if (_posts.isNotEmpty) {
-        result = ApiFeed.getList(
+        result = context.read<ApiFeed>().getList(
             limit: _defaultFeedFetchLimit, before: _posts.last.dateTimeString);
       } else {
-        result = ApiFeed.getList(limit: _defaultFeedFetchLimit);
+        result = context.read<ApiFeed>().getList(limit: _defaultFeedFetchLimit);
       }
 
       int count = 0;

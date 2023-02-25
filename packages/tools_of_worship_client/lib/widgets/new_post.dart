@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:tools_of_worship_client/apis/feed.dart';
-import 'package:tools_of_worship_client/apis/fellowships.dart';
-import 'package:tools_of_worship_client/apis/types/fellowship.dart';
+import 'package:provider/provider.dart';
+import 'package:tools_of_worship_api/tools_of_worship_client_api.dart';
 import 'package:tools_of_worship_client/config/styling.dart';
 
 class NewPost extends StatefulWidget {
@@ -27,7 +26,7 @@ class _NewPostState extends State<NewPost> {
   void initState() {
     super.initState();
 
-    ApiFellowships.getList().toList().then((fellowships) {
+    context.read<ApiFellowships>().getList().toList().then((fellowships) {
       setState(() {
         _noFellowships = fellowships.isEmpty;
         _fellowships = fellowships;
@@ -105,7 +104,7 @@ class _NewPostState extends State<NewPost> {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               OutlinedButton(
-                onPressed: onCancel,
+                onPressed: _onCancel,
                 child: const Text('Cancel'),
               ),
               ElevatedButton(
@@ -113,7 +112,7 @@ class _NewPostState extends State<NewPost> {
                         _selectedFellowshipId == null ||
                         _article == null)
                     ? null
-                    : onPost,
+                    : _onPost,
                 child: const Text('Post'),
               ),
             ],
@@ -170,13 +169,13 @@ class _NewPostState extends State<NewPost> {
     );
   }
 
-  void onCancel() {
+  void _onCancel() {
     if (widget._onCompleted != null) {
       widget._onCompleted!(true);
     }
   }
 
-  void onPost() async {
+  void _onPost() async {
     if (widget._onCompleted != null) {
       if (_selectedFellowshipId == null ||
           _selectedFellowshipId!.isEmpty ||
@@ -187,9 +186,10 @@ class _NewPostState extends State<NewPost> {
         throw Exception('Data unexpectedly empty');
       }
 
-      await ApiFeed.postPost(_selectedFellowshipId!, _heading!, _article!);
-
-      widget._onCompleted!(false);
+      context
+          .read<ApiFeed>()
+          .postPost(_selectedFellowshipId!, _heading!, _article!)
+          .then((_) => widget._onCompleted!(false));
     }
   }
 }

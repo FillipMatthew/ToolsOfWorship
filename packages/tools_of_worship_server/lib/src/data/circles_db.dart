@@ -1,7 +1,5 @@
 import 'package:mongo_dart/mongo_dart.dart';
-import 'package:tools_of_worship_server/src/interfaces/circles_data_provider.dart';
-import 'package:tools_of_worship_server/src/types/access_level.dart';
-import 'package:tools_of_worship_server/src/types/circle.dart';
+import 'package:tools_of_worship_api/tools_of_worship_server_api.dart';
 
 class CirclesDatabase implements CirclesDataProvider {
   final DbCollection _circlesCollection;
@@ -12,9 +10,11 @@ class CirclesDatabase implements CirclesDataProvider {
         _circleMembersCollection = circleMemebers;
 
   @override
-  Stream<Circle> getUserCircles(String userId, int minAccessLevel) async* {
-    var circleMembersResult = _circleMembersCollection.find(
-        where.eq('userId', userId).and(where.lte('access', minAccessLevel)));
+  Stream<Circle> getUserCircles(
+      String userId, AccessLevel minAccessLevel) async* {
+    var circleMembersResult = _circleMembersCollection.find(where
+        .eq('userId', userId)
+        .and(where.lte('access', minAccessLevel.toJson())));
 
     await for (var item in circleMembersResult) {
       String id = item['circleId'];
@@ -74,7 +74,7 @@ class CirclesDatabase implements CirclesDataProvider {
 
   @override
   Future<bool> addPermission(
-      String circleId, String userId, int accessLevel) async {
+      String circleId, String userId, AccessLevel accessLevel) async {
     WriteResult result = await _circleMembersCollection.insertOne({
       'circleId': circleId,
       'userId': userId,

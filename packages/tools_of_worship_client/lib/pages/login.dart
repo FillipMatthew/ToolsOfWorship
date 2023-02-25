@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:sign_button/sign_button.dart';
 import 'package:string_validator/string_validator.dart';
-import 'package:tools_of_worship_client/helpers/account_authentication.dart';
-import 'package:tools_of_worship_client/tools_of_worship_client.dart';
+import 'package:tools_of_worship_client/pages/signup.dart';
+
+import '../config/styling.dart';
+import '../helpers/alertbox.dart';
+import '../providers/account_authentication.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -180,16 +184,14 @@ class _LoginPageState extends State<LoginPage> {
       // });
     } else {
       try {
-        if (await AccountAuthentication().signIn(_email!, _password!)) {
-          if (context.mounted) {
-            Navigator.pushNamedAndRemoveUntil(
-                context, Routing.home, (Route<dynamic> route) => false);
-          }
-        } else {
-          if (context.mounted) {
+        context
+            .read<AccountAuthentication>()
+            .signIn(_email!, _password!)
+            .then((success) {
+          if (!success && context.mounted) {
             showError(context, 'An error occured while signing in.');
           }
-        }
+        });
       } on Exception catch (e) {
         showError(context, e.toString());
       }
@@ -200,22 +202,20 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _onSignup() {
-    Navigator.pushNamedAndRemoveUntil(
-        context, Routing.signup, (Route<dynamic> route) => false);
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (context) => const SignupPage()));
   }
 
   Future<void> _signInWithGoogle() async {
     try {
-      if (await AccountAuthentication().authenticateWithGoogleSignIn()) {
-        if (context.mounted) {
-          Navigator.pushNamedAndRemoveUntil(
-              context, Routing.home, (Route<dynamic> route) => false);
-        }
-      } else {
-        if (context.mounted) {
+      context
+          .read<AccountAuthentication>()
+          .authenticateWithGoogleSignIn()
+          .then((sucess) {
+        if (!sucess && context.mounted) {
           showError(context, 'An error occured while signing in.');
         }
-      }
+      });
     } on Exception catch (e) {
       showError(context, e.toString());
     }

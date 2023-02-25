@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:tools_of_worship_api/tools_of_worship_client_api.dart';
 import 'package:tools_of_worship_client/config/styling.dart';
-import 'package:tools_of_worship_client/apis/types/post.dart';
 import 'package:tools_of_worship_client/helpers/strings.dart';
 
 class FeedEntry extends StatelessWidget {
@@ -16,7 +16,7 @@ class FeedEntry extends StatelessWidget {
       child: ListTile(
         //dense: true,
         contentPadding: const EdgeInsets.all(defaultPadding),
-        title: Text(_entry.headng),
+        title: Text(_entry.heading),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -41,11 +41,11 @@ class FeedEntry extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  _entry.author,
+                  "", //_entry.authorName,
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
                 Text(
-                  _entry.feedName,
+                  "", //_entry.feedName,
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ],

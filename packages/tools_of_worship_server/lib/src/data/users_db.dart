@@ -1,7 +1,5 @@
 import 'package:mongo_dart/mongo_dart.dart';
-import 'package:tools_of_worship_server/src/interfaces/users_data_provider.dart';
-import 'package:tools_of_worship_server/src/types/user.dart';
-import 'package:tools_of_worship_server/src/types/user_connection.dart';
+import 'package:tools_of_worship_api/tools_of_worship_server_api.dart';
 
 class UsersDatabase implements UsersDataProvider {
   final DbCollection _userConnectionsCollection;
@@ -51,10 +49,10 @@ class UsersDatabase implements UsersDataProvider {
 
   @override
   Future<UserConnection?> getUserConnection(
-      int signInType, String accountId) async {
+      SignInType signInType, String accountId) async {
     Map<String, dynamic>? accountData =
         await _userConnectionsCollection.findOne(where
-            .eq('signInType', signInType)
+            .eq('signInType', signInType.toJson())
             .and(where.eq('accountId', accountId)));
 
     if (accountData == null) {

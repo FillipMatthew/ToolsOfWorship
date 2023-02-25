@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:tools_of_worship_client/tools_of_worship_client.dart';
+
+import '../config/styling.dart';
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});

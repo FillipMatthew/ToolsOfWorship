@@ -1,18 +1,11 @@
 import 'package:mongo_dart/mongo_dart.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
-import 'package:tools_of_worship_server/src/apis/feed.dart';
-import 'package:tools_of_worship_server/src/apis/fellowships.dart';
-import 'package:tools_of_worship_server/src/apis/users.dart';
+import 'package:tools_of_worship_api/tools_of_worship_server_api.dart';
 import 'package:tools_of_worship_server/src/data/circles_db.dart';
 import 'package:tools_of_worship_server/src/data/feed_db.dart';
 import 'package:tools_of_worship_server/src/data/fellowships_db.dart';
 import 'package:tools_of_worship_server/src/data/users_db.dart';
-import 'package:tools_of_worship_server/src/helpers/account_authentication.dart';
-import 'package:tools_of_worship_server/src/interfaces/circles_data_provider.dart';
-import 'package:tools_of_worship_server/src/interfaces/feed_data_provider.dart';
-import 'package:tools_of_worship_server/src/interfaces/fellowships_data_provider.dart';
-import 'package:tools_of_worship_server/src/interfaces/users_data_provider.dart';
 
 class ToolsOfWorshipApi {
   final UsersDataProvider _usersProvider;
@@ -39,15 +32,11 @@ class ToolsOfWorshipApi {
 
     router.mount('/Users/', ApiUsers(_usersProvider).router);
     router.mount('/Fellowships/', ApiFellowships(_fellowshipsProvider).router);
-    router.mount(
-        '/Feed/',
-        ApiFeed(_feedProvider, _usersProvider, _fellowshipsProvider,
-                _circlesProvider)
-            .router);
+    router.mount('/Feed/', ApiFeed(_feedProvider).router);
 
     final handler = Pipeline()
-        .addMiddleware(AccountAuthentication.handleAuth())
-        .addMiddleware(AccountAuthentication.checkAuthorisation())
+        .addMiddleware(AccountManagement.handleAuth())
+        .addMiddleware(AccountManagement.checkAuthorisation())
         .addHandler(router);
 
     return handler;

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:tools_of_worship_client/config/styling.dart';
 
-import 'package:tools_of_worship_client/helpers/account_authentication.dart';
-import 'package:tools_of_worship_client/pages/routing.dart';
+import 'package:tools_of_worship_client/providers/account_authentication.dart';
 
 class UserSidebar extends StatelessWidget {
   const UserSidebar({Key? key}) : super(key: key);
@@ -13,14 +13,12 @@ class UserSidebar extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Center(
-          child: Text(AccountAuthentication().displayName),
+          child: Text(context.read<AccountAuthentication>().displayName),
         ),
         const Divider(),
         ElevatedButton(
           onPressed: () {
-            AccountAuthentication().signOut();
-            Navigator.pushNamedAndRemoveUntil(
-                context, Routing.root, (Route<dynamic> route) => false);
+            context.read<AccountAuthentication>().signOut();
           },
           child: Row(
             children: const [

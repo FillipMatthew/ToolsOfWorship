@@ -1,7 +1,5 @@
 import 'package:mongo_dart/mongo_dart.dart';
-import 'package:tools_of_worship_server/src/interfaces/fellowships_data_provider.dart';
-import 'package:tools_of_worship_server/src/types/access_level.dart';
-import 'package:tools_of_worship_server/src/types/fellowship.dart';
+import 'package:tools_of_worship_api/tools_of_worship_server_api.dart';
 
 class FellowshipsDatabase implements FellowshipsDataProvider {
   final DbCollection _fellowshipsCollection;
@@ -13,9 +11,10 @@ class FellowshipsDatabase implements FellowshipsDataProvider {
 
   @override
   Stream<Fellowship> getUserFellowships(
-      String userId, int minAccessLevel) async* {
-    var fellowshipMembersResult = _fellowshipMembersCollection.find(
-        where.eq('userId', userId).and(where.lte('access', minAccessLevel)));
+      String userId, AccessLevel minAccessLevel) async* {
+    var fellowshipMembersResult = _fellowshipMembersCollection.find(where
+        .eq('userId', userId)
+        .and(where.lte('access', minAccessLevel.toJson())));
 
     await for (var item in fellowshipMembersResult) {
       String id = item['fellowshipId'];
@@ -73,7 +72,7 @@ class FellowshipsDatabase implements FellowshipsDataProvider {
 
   @override
   Future<bool> addPermission(
-      String fellowshipId, String userId, int accessLevel) async {
+      String fellowshipId, String userId, AccessLevel accessLevel) async {
     WriteResult result = await _fellowshipMembersCollection.insertOne({
       'fellowshipId': fellowshipId,
       'userId': userId,

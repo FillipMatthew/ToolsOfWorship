@@ -14,7 +14,7 @@ environment:
 dependencies:
   # Client dependencies
   http: ^0.13.5
-  google_sign_in: ^5.4.3
+  google_sign_in: ^6.0.1
 
   # Server dependencies
   xid: ^1.0.7

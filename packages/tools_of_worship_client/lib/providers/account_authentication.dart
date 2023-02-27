@@ -28,7 +28,11 @@ class AccountAuthentication extends ChangeNotifier {
 
   Future<bool> authenticateWithGoogleSignIn() async {
     GoogleSignInHelper helper = GoogleSignInHelper();
-    await helper.signIn();
+    await helper.authenticate();
+    if (!await helper.signIn()) {
+      return false;
+    }
+
     String? token = await helper.signInToken;
     if (token == null) {
       throw Exception('Could not retrieve google ID token.');

@@ -11,7 +11,7 @@ class GoogleSignInHelper {
       // 'https://www.googleapis.com/auth/userinfo.profile',
       // Google Sign-In
       'profile',
-      //'email',
+      'email',
       //'openid',
       // 'https://www.googleapis.com/auth/contacts.readonly',
     ],
@@ -21,8 +21,9 @@ class GoogleSignInHelper {
     return (await _googleSignIn.signIn()) != null;
   }
 
-  Future<void> autoSignIn() async {
-    await _googleSignIn.signInSilently(suppressErrors: false);
+  Future<void> authenticate() async {
+    await _googleSignIn.signInSilently(
+        reAuthenticate: true, suppressErrors: false);
   }
 
   Future<void> signOut() async {

@@ -27,8 +27,16 @@ scripts:
 
   update:all:
     run:
+      melos run update:api_packages --no-select &&
       melos run update:client_packages --no-select &&
       melos run update:server_packages --no-select
+
+  update:api_packages:
+    run:
+      melos exec -c 1 --fail-fast -- "dart pub get && dart pub upgrade"
+    select-package:
+      flutter: false
+      scope: "*tools_of_worship_api*"
 
   update:client_packages:
     run:

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:string_validator/string_validator.dart';
 import 'package:tools_of_worship_api/tools_of_worship_client_api.dart';
-import 'package:tools_of_worship_client/pages/login.dart';
 
 import '../config/styling.dart';
 import '../helpers/alertbox.dart';

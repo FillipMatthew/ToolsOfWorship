@@ -9,6 +9,9 @@ pubspec.lock
 *.iws
 .idea/
 
+packages/tools_of_worship_server/.flutter-plugins
+packages/tools_of_worship_server/.flutter-plugins-dependencies
+
 # Config
 packages/tools_of_worship_api/lib/src/config/properties.dart
 packages/tools_of_worship_server/lib/properties.dart

@@ -8,5 +8,3 @@ export 'src/types/sign_in_type.dart';
 export 'src/client/feed.dart';
 export 'src/client/fellowships.dart';
 export 'src/client/users.dart';
-
-export 'src/client/helpers/google_sign_in.dart';

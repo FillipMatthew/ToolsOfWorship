@@ -9,14 +9,10 @@ repository: https://github.com/FillipMatthew/ToolsOfWorship
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 environment:
-  sdk: '>=2.19.0 <3.0.0'
+  sdk: '>=2.19.2 <3.0.0'
 
 dependencies:
-  # Client dependencies
   http: ^0.13.5
-  google_sign_in: ^6.0.1
-
-  # Server dependencies
   xid: ^1.0.7
   shelf: ^1.3.0
   shelf_router: ^1.1.3

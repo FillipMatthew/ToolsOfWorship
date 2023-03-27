@@ -2,6 +2,7 @@
 .pub/
 .dart_tool/
 pubspec.lock
+.vscode/launch.json
 
 # IntelliJ related
 *.iml
@@ -18,3 +19,9 @@ packages/tools_of_worship_server/lib/properties.dart
 
 # Deploy files
 publish/
+
+# Build scripts
+build-client-web.bat
+upgrade-api.bat
+upgrade-client.bat
+upgrade-server.bat

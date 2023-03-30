@@ -18,7 +18,6 @@ class _PageWrapperState extends State<PageWrapper>
   static const _animationDuration =
       Duration(milliseconds: defaultMenuAnimationMS);
   bool _isOpen = false;
-  OverlayEntry? _userSideBar;
 
   @override
   void dispose() {
@@ -59,29 +58,28 @@ class _PageWrapperState extends State<PageWrapper>
     );
   }
 
-  void _showUserSidebar() {
-    final double screenWidth = MediaQuery.of(context).size.width;
-    double width = 350.0;
-    bool fill = false;
-    if ((screenWidth - (defaultPadding * 2)) <= (maxContentWidth / 2)) {
-      width = screenWidth - (defaultPadding * 2);
-      fill = true;
-    }
-
-    double appPadding = 0.0;
-    if (!fill) {
-      if (screenWidth > maxAppWidth) {
-        appPadding = (screenWidth - maxAppWidth) / 2.0;
-      }
-    }
-
-    _userSideBar = OverlayEntry(
+  Future<void> _showUserSidebar(BuildContext context) {
+    return showDialog<void>(
+      barrierColor: Colors.transparent,
+      context: context,
       builder: (context) {
-        return Positioned(
-          right: defaultPadding + appPadding,
-          width: width,
-          top: 60.0,
-          bottom: fill ? defaultPadding : null,
+        final double screenWidth = MediaQuery.of(context).size.width;
+        double width = 350.0;
+        double rightPadding = defaultPadding;
+        bool fill = false;
+        if ((screenWidth - (defaultPadding * 2.0)) <= (maxContentWidth / 2)) {
+          width = screenWidth - (defaultPadding * 2);
+          fill = true;
+        } else if (screenWidth - (defaultPadding * 2.0) > maxAppWidth) {
+          rightPadding += ((screenWidth - maxAppWidth) / 2.0);
+        }
+
+        return Dialog(
+          alignment: fill ? null : Alignment.topRight,
+          insetPadding: EdgeInsets.fromLTRB(
+              defaultPadding, 60.0, rightPadding, defaultPadding),
+          elevation: 0,
+          backgroundColor: Colors.transparent,
           child: AnimatedOpacity(
             duration: _animationDuration,
             opacity: _isOpen ? 1.0 : 0.0,
@@ -93,32 +91,30 @@ class _PageWrapperState extends State<PageWrapper>
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15.0),
               ),
-              child: const Padding(
-                padding: EdgeInsets.all(defaultPadding),
-                child: UserSidebar(),
+              child: Container(
+                width: fill ? null : width,
+                constraints: fill ? const BoxConstraints.expand() : null,
+                padding: const EdgeInsets.all(defaultPadding),
+                child: UserSidebar(onCompleted: () => _hideUserSidebar()),
               ),
             ),
           ),
         );
       },
     );
-
-    final overlay = Overlay.of(context);
-    overlay.insert(_userSideBar!);
   }
 
   void _hideUserSidebar() {
-    _userSideBar?.remove();
-    _userSideBar = null;
+    if (_isOpen) {
+      Navigator.of(context).pop();
+      setState(() => _isOpen = false);
+    }
   }
 
   void _onPressedUser() {
     if (!_isOpen) {
-      _showUserSidebar();
-    } else {
-      _hideUserSidebar();
+      _showUserSidebar(context).then((_) => setState(() => _isOpen = false));
+      setState(() => _isOpen = true);
     }
-
-    setState(() => _isOpen = !_isOpen);
   }
 }

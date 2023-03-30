@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tools_of_worship_api/tools_of_worship_client_api.dart';
-import 'package:tools_of_worship_client/pages/welcome.dart';
 
 import 'config/styling.dart';
 import 'pages/home.dart';
 import 'pages/login.dart';
+import 'pages/welcome.dart';
 import 'providers/account_authentication.dart';
 
 class ToolsOfWorshipApp extends StatefulWidget {

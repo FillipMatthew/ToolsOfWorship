@@ -12,7 +12,9 @@ import 'package:tools_of_worship_server/tools_of_worship_server.dart';
 void main(List<String> args) async {
   ArgParser parser = ArgParser()
     ..addOption('https')
-    ..addOption('port', abbr: 'p');
+    ..addOption('port', abbr: 'p')
+    ..addOption('appDir')
+    ..addOption('certDir');
   ArgResults result = parser.parse(args);
   // For running in containers, we respect the PORT environment variable.
   String httpsString =
@@ -22,6 +24,8 @@ void main(List<String> args) async {
       Platform.environment['PORT'] ??
       (useHttps ? '443' : '80');
   final port = int.tryParse(portStr);
+  final appDir = result['appDir'] ?? 'public/app';
+  final certDir = result['certDir'] ?? 'certificates';
 
   if (port == null) {
     print('Could not parse port value "$portStr" into a number.');
@@ -32,7 +36,7 @@ void main(List<String> args) async {
 
   print('Connecting to database.');
   final db = await Db.create(Properties.databaseURI);
-  await db.open();
+  await db.open(secure: useHttps);
   if (db.isConnected) {
     print('Database connected.');
   }
@@ -41,8 +45,7 @@ void main(List<String> args) async {
     ..mount('/apis/', ToolsOfWorshipApi(db).handler)
     ..mount(
       '/',
-      createStaticHandler('${Properties.publicUri}/app',
-          defaultDocument: 'index.html'),
+      createStaticHandler(appDir, defaultDocument: 'index.html'),
     );
 
   final handler = Pipeline()
@@ -54,8 +57,8 @@ void main(List<String> args) async {
   if (useHttps) {
     print('Using SSL certificates.');
     securityContext = SecurityContext()
-      ..useCertificateChain('${Properties.certificatesUri}/server_chain.pem')
-      ..usePrivateKey('${Properties.certificatesUri}/server_key.pem');
+      ..useCertificateChain('$certDir/server_chain.pem')
+      ..usePrivateKey('$certDir/server_key.pem');
   }
 
   withHotreload(() => serve(handler, InternetAddress.anyIPv4, port,

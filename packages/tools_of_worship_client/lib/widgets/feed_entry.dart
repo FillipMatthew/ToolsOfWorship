@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:tools_of_worship_api/tools_of_worship_client_api.dart';
-import 'package:tools_of_worship_client/config/styling.dart';
-import 'package:tools_of_worship_client/helpers/strings.dart';
+
+import '../config/styling.dart';
+import '../helpers/strings.dart';
 
 class FeedEntry extends StatelessWidget {
   final Post _entry;

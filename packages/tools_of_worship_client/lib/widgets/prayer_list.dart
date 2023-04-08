@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'package:tools_of_worship_client/config/styling.dart';
-import 'package:tools_of_worship_client/widgets/prayer_list_entry.dart';
+import '../config/styling.dart';
+import 'prayer_list_entry.dart';
 
 class PrayerList extends StatelessWidget {
   static const List<String> prayerList = [

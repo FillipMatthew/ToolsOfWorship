@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tools_of_worship_api/tools_of_worship_client_api.dart';
-import 'package:tools_of_worship_client/config/styling.dart';
+
+import '../config/styling.dart';
 
 class NewPost extends StatefulWidget {
   final Function(bool cancelled)? _onCompleted;

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:tools_of_worship_client/config/styling.dart';
-import 'package:tools_of_worship_client/widgets/user_sidebar.dart';
+
+import '../config/styling.dart';
+import 'user_sidebar.dart';
 
 class PageWrapper extends StatefulWidget {
   final Widget _child;
@@ -31,25 +32,26 @@ class _PageWrapperState extends State<PageWrapper>
     return Scaffold(
       body: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1600.0),
-          child: Stack(
-            fit: StackFit.expand,
+          constraints: const BoxConstraints(maxWidth: maxAppWidth),
+          child: Column(
             children: [
-              Column(
-                children: [
-                  AppBar(
-                    title: const Text('Tools of Worship'),
-                    actions: [
-                      IconButton(
-                        icon: const Icon(Icons.person),
-                        onPressed: _onPressedUser,
-                      ),
-                    ],
-                  ),
-                  Expanded(
-                    child: widget._child,
+              AppBar(
+                title: const Text('Tools of Worship'),
+                actions: [
+                  IconButton(
+                    icon: const Icon(Icons.person),
+                    onPressed: _onPressedUser,
                   ),
                 ],
+              ),
+              Expanded(
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints:
+                        const BoxConstraints(maxWidth: maxContentWidth),
+                    child: widget._child,
+                  ),
+                ),
               ),
             ],
           ),
@@ -89,7 +91,7 @@ class _PageWrapperState extends State<PageWrapper>
                   .withOpacity(defaultOverlayOpacity),
               elevation: defaultMenuElevation,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15.0),
+                borderRadius: BorderRadius.circular(preferredBorderRadius),
               ),
               child: Container(
                 width: fill ? null : width,

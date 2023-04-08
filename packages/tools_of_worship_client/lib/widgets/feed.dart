@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tools_of_worship_api/tools_of_worship_client_api.dart';
-import 'package:tools_of_worship_client/config/styling.dart';
-import 'package:tools_of_worship_client/widgets/feed_entry.dart';
+
+import '../config/styling.dart';
+import 'feed_entry.dart';
 
 class Feed extends StatefulWidget {
   const Feed({Key? key}) : super(key: key);

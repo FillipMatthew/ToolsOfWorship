@@ -2,10 +2,11 @@ import 'package:mongo_dart/mongo_dart.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 import 'package:tools_of_worship_api/tools_of_worship_server_api.dart';
-import 'package:tools_of_worship_server/src/data/circles_db.dart';
-import 'package:tools_of_worship_server/src/data/feed_db.dart';
-import 'package:tools_of_worship_server/src/data/fellowships_db.dart';
-import 'package:tools_of_worship_server/src/data/users_db.dart';
+
+import 'data/circles_db.dart';
+import 'data/feed_db.dart';
+import 'data/fellowships_db.dart';
+import 'data/users_db.dart';
 
 class ToolsOfWorshipApi {
   final UsersDataProvider _usersProvider;

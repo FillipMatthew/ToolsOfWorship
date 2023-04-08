@@ -9,7 +9,7 @@ repository: https://github.com/FillipMatthew/ToolsOfWorship
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 environment:
-  sdk: '>=2.19.0 <3.0.0'
+  sdk: ^2.19.6
 
 dependencies:
   tools_of_worship_api:

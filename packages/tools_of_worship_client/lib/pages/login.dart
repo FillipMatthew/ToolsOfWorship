@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sign_button/sign_button.dart';
 import 'package:string_validator/string_validator.dart';
-import 'package:tools_of_worship_client/pages/signup.dart';
 
 import '../config/styling.dart';
 import '../helpers/alertbox.dart';
 import '../providers/account_authentication.dart';
+import 'signup.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);

@@ -26,8 +26,8 @@ class UserSidebar extends StatelessWidget {
             _onCompleted!();
             context.read<AccountAuthentication>().signOut();
           },
-          child: Row(
-            children: const [
+          child: const Row(
+            children: [
               Padding(
                 padding: EdgeInsets.all(defaultPadding),
                 child: Icon(Icons.logout),

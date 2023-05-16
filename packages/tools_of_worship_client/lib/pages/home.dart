@@ -4,6 +4,7 @@ import 'package:tools_of_worship_api/tools_of_worship_client_api.dart';
 
 import '../config/styling.dart';
 import '../dialogs/dialog_wrapper.dart';
+import '../providers/fellowships.dart';
 import '../widgets/feed.dart';
 import '../widgets/new_post.dart';
 import '../widgets/page_wrapper.dart';
@@ -31,8 +32,8 @@ class HomePage extends StatelessWidget {
   }
 
   Future<void> _showNewPost(BuildContext context) {
-    ApiFellowships apiFellowships =
-        Provider.of<ApiFellowships>(context, listen: false);
+    FellowshipsProvider fellowships =
+        Provider.of<FellowshipsProvider>(context, listen: false);
     ApiFeed apiFeed = Provider.of<ApiFeed>(context, listen: false);
 
     return showDialog<void>(
@@ -43,7 +44,7 @@ class HomePage extends StatelessWidget {
         return DialogWrapper(
           child: MultiProvider(
             providers: [
-              Provider<ApiFellowships>.value(value: apiFellowships),
+              Provider<FellowshipsProvider>.value(value: fellowships),
               Provider<ApiFeed>.value(value: apiFeed),
             ],
             child: NewPost(

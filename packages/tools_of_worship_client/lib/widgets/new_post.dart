@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:tools_of_worship_api/tools_of_worship_client_api.dart';
 
 import '../config/styling.dart';
+import '../providers/fellowships.dart';
 
 class NewPost extends StatefulWidget {
   final Function(bool cancelled)? _onCompleted;
@@ -27,7 +28,7 @@ class _NewPostState extends State<NewPost> {
   void initState() {
     super.initState();
 
-    context.read<ApiFellowships>().getList().toList().then((fellowships) {
+    context.read<FellowshipsProvider>().getFellowships().then((fellowships) {
       setState(() {
         _noFellowships = fellowships.isEmpty;
         _fellowships = fellowships;

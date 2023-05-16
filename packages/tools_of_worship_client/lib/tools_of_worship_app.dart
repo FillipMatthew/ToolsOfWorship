@@ -7,6 +7,7 @@ import 'pages/home.dart';
 import 'pages/login.dart';
 import 'pages/welcome.dart';
 import 'providers/account_authentication.dart';
+import 'providers/fellowships.dart';
 
 class ToolsOfWorshipApp extends StatefulWidget {
   const ToolsOfWorshipApp({Key? key}) : super(key: key);
@@ -45,12 +46,18 @@ class _ToolsOfWorshipAppState extends State<ToolsOfWorshipApp> {
                   update: (_, accountAuth, ___) =>
                       ApiFeed(accountAuth.authToken),
                 ),
-                ProxyProvider<AccountAuthentication, ApiFellowships>(
-                  create: (context) => ApiFellowships(
+                ProxyProvider<AccountAuthentication, FellowshipsProvider>(
+                  create: (context) => FellowshipsProvider(
                       context.select<AccountAuthentication, String>(
                           (accountAuth) => accountAuth.authToken)),
-                  update: (_, accountAuth, ___) =>
-                      ApiFellowships(accountAuth.authToken),
+                  update: (_, accountAuth, fellowships) {
+                    if (fellowships != null) {
+                      fellowships.authToken = accountAuth.authToken;
+                      return fellowships;
+                    } else {
+                      return FellowshipsProvider(accountAuth.authToken);
+                    }
+                  },
                 ),
               ],
               child: const HomePage(),

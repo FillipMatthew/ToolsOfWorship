@@ -64,9 +64,9 @@ class AccountManagement {
 
       print('Payload: ${jwt.payload}');
       return jwt.subject;
-    } on JWTExpiredError {
+    } on JWTExpiredException {
       print('JWT expired.');
-    } on JWTError catch (ex) {
+    } on JWTException catch (ex) {
       print(ex.message); // Invalid signature
     } on FormatException catch (_) {
       print('Invalid token.');

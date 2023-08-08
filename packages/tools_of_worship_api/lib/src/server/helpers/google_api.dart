@@ -49,9 +49,9 @@ class GoogleApi {
         }
 
         return data;
-      } on JWTExpiredError {
+      } on JWTExpiredException {
         print('JWT Google sign in token expired.');
-      } on JWTError catch (ex) {
+      } on JWTException catch (ex) {
         print(ex.message); // Invalid signature
       }
     }

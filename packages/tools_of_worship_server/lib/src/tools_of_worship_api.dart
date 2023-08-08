@@ -9,13 +9,15 @@ import 'data/fellowships_db.dart';
 import 'data/users_db.dart';
 
 class ToolsOfWorshipApi {
+  final Db _db;
   final UsersDataProvider _usersProvider;
   final FellowshipsDataProvider _fellowshipsProvider;
   final CirclesDataProvider _circlesProvider;
   final FeedDataProvider _feedProvider;
 
   ToolsOfWorshipApi(Db db)
-      : _usersProvider = UsersDatabase(
+      : _db = db,
+        _usersProvider = UsersDatabase(
             db.collection('Users'), db.collection('UserConnections')),
         _fellowshipsProvider = FellowshipsDatabase(
             db.collection('Fellowships'), db.collection('FellowshipMembers')),
@@ -38,8 +40,23 @@ class ToolsOfWorshipApi {
     final handler = Pipeline()
         .addMiddleware(AccountManagement.handleAuth())
         .addMiddleware(AccountManagement.checkAuthorisation())
+        .addMiddleware(createMiddleware(requestHandler: _dbConnectionManager))
         .addHandler(router);
 
     return handler;
+  }
+
+  Future<Response?> _dbConnectionManager(Request request) async {
+    while (_db.state == State.opening) {
+      await Future.delayed(Duration(milliseconds: 100));
+    }
+
+    if (_db.isConnected) return null;
+    await _db.close();
+    await _db.open();
+
+    if (!_db.isConnected) return Response.internalServerError();
+
+    return null;
   }
 }

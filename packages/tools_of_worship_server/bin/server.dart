@@ -36,7 +36,7 @@ void main(List<String> args) async {
 
   print('Connecting to database.');
   final db = await Db.create(Properties.databaseURI);
-  await db.open(secure: useHttps);
+  await db.open(secure: true);
   if (db.isConnected) {
     print('Database connected.');
   }

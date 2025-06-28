@@ -64,8 +64,13 @@ class AccountAuthentication extends ChangeNotifier {
 
   Future<bool> _authenticate(
       SignInType signInType, String accountId, String? password) async {
-    Map<String, String> userData = await ApiUsers(_authToken ?? '')
-        .authenticate(signInType, accountId, password);
+    Map<String, String> userData;
+    if (signInType == SignInType.localUser) {
+      userData = await ApiUsers(_authToken ?? '').signIn(accountId, password!);
+    } else {
+      userData = await ApiUsers(_authToken ?? '')
+          .authenticate(signInType, accountId, password);
+    }
 
     _authToken = userData['token'];
     _displayName = userData['displayName'];

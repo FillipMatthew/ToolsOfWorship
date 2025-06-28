@@ -11,6 +11,27 @@ class ApiUsers {
 
   ApiUsers(String authToken) : _authToken = authToken;
 
+  Future<Map<String, String>> signIn(String accountId, String password) async {
+    String userPass = base64Encode(utf8.encode('$accountId:$password'));
+    String basicAuth = 'Basic $userPass';
+
+    final http.Response response = await http.post(
+      Uri.parse('${Properties.apiHost}/api/user/login'),
+      headers: {
+        HttpHeaders.authorizationHeader: basicAuth,
+        HttpHeaders.acceptHeader: ContentType.json.mimeType,
+      },
+    );
+
+    if (response.statusCode == HttpStatus.ok) {
+      return json.decode(response.body);
+    } else if (response.statusCode == HttpStatus.forbidden) {
+      throw Exception('Authentication failed');
+    }
+
+    throw Exception('Unexpected error');
+  }
+
   Future<Map<String, String>> authenticate(
       SignInType signInType, String accountId, String? password) async {
     String body = json.encode({
@@ -20,7 +41,7 @@ class ApiUsers {
     });
 
     final http.Response response = await http.post(
-      Uri.parse('${Properties.apiHost}/apis/Users/Authenticate'),
+      Uri.parse('${Properties.apiHost}/api/user/authenticate'),
       headers: {HttpHeaders.contentTypeHeader: ContentType.json.mimeType},
       body: body,
     );
@@ -36,18 +57,18 @@ class ApiUsers {
 
   Future<bool> signup(String displayName, String email, String password) async {
     String body = json.encode({
-      'email': email,
-      'password': password,
       'displayName': displayName,
+      'accountId': email,
+      'password': password,
     });
 
     final http.Response response = await http.post(
-      Uri.parse('${Properties.apiHost}/apis/Users/Signup'),
+      Uri.parse('${Properties.apiHost}/api/user/register'),
       headers: {HttpHeaders.contentTypeHeader: ContentType.json.mimeType},
       body: body,
     );
 
-    if (response.statusCode == HttpStatus.ok) {
+    if (response.statusCode == HttpStatus.created) {
       json.decode(response.body);
       return true;
     } else if (response.statusCode == HttpStatus.forbidden) {

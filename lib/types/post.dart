@@ -4,19 +4,19 @@ class Post {
   String? _fellowshipId;
   String? _circleId;
   String?
-      _dateTime; // Keep the datetime as a string since precision varies across devices.
+      _posted; // Keep the datetime as a string since precision varies across devices.
   String? _heading;
   String? _article;
 
   Post();
 
   Post.create(String id, String authorId, String? fellowshipId,
-      String? circleId, String dateTime, String heading, String article)
+      String? circleId, String posted, String heading, String article)
       : _id = id,
         _authorId = authorId,
         _fellowshipId = fellowshipId,
         _circleId = circleId,
-        _dateTime = dateTime,
+        _posted = posted,
         _heading = heading,
         _article = article;
 
@@ -27,7 +27,7 @@ class Post {
         'authorId': _authorId,
         'fellowshipId': _fellowshipId,
         'circleId': _circleId,
-        'dateTime': _dateTime,
+        'posted': _posted,
         'heading': _heading,
         'article': _article,
       };
@@ -41,11 +41,11 @@ class Post {
         _authorId = data['authorId'],
         _fellowshipId = data['fellowshipId'],
         _circleId = data['circleId'],
-        _dateTime = data['dateTime'],
+        _posted = data['posted'],
         _heading = data['heading'],
         _article = data['article'] {
     // So we throw an exception if the date/time is invalid.
-    DateTime.parse(_dateTime!);
+    DateTime.parse(_posted!);
   }
 
   String get id => _id!;
@@ -56,9 +56,9 @@ class Post {
 
   String? get circleId => _circleId;
 
-  String get dateTimeString => _dateTime!;
+  String get postedString => _posted!;
 
-  DateTime get dateTime => DateTime.parse(_dateTime!);
+  DateTime get posted => DateTime.parse(_posted!);
 
   String get heading => _heading!;
 
@@ -69,7 +69,7 @@ class Post {
       _authorId != null &&
       ((fellowshipId != null && fellowshipId!.isNotEmpty) ||
           (_circleId != null && circleId!.isNotEmpty)) &&
-      _dateTime != null &&
+      _posted != null &&
       _heading != null &&
       _article != null;
 }

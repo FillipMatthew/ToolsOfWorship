@@ -52,7 +52,7 @@ class _FeedState extends State<Feed> {
           ),
         ),
         Expanded(
-          child: _posts.isEmpty
+          child: _moreToLoad
               ? const Center(child: CircularProgressIndicator())
               : RefreshIndicator(
                   onRefresh: _onRefresh,
@@ -103,8 +103,14 @@ class _FeedState extends State<Feed> {
         });
       }
 
+      if (count == 0) {
+        setState(() {
+          _moreToLoad = false;
+        });
+      }
+
       _isLoading = false;
-    } catch (_) {
+    } catch (err) {
       _isLoading = false;
     }
   }
@@ -120,7 +126,7 @@ class _FeedState extends State<Feed> {
       Stream<Post> result;
       if (_posts.isNotEmpty) {
         result = context.read<ApiFeed>().getList(
-            limit: _defaultFeedFetchLimit, before: _posts.last.dateTimeString);
+            limit: _defaultFeedFetchLimit, before: _posts.last.postedString);
       } else {
         result = context.read<ApiFeed>().getList(limit: _defaultFeedFetchLimit);
       }
@@ -131,6 +137,12 @@ class _FeedState extends State<Feed> {
           _posts.add(post);
           ++count;
           _moreToLoad = count == _defaultFeedFetchLimit;
+        });
+      }
+
+      if (count == 0) {
+        setState(() {
+          _moreToLoad = false;
         });
       }
 

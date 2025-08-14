@@ -24,7 +24,7 @@ class FeedEntry extends StatelessWidget {
             Align(
               alignment: Alignment.centerRight,
               child: Text(
-                formatDateTimeString(_entry.dateTime),
+                formatDateTimeString(_entry.posted),
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             ),

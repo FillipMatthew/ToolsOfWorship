@@ -10,7 +10,7 @@ import 'providers/account_authentication.dart';
 import 'providers/fellowships.dart';
 
 class ToolsOfWorshipApp extends StatefulWidget {
-  const ToolsOfWorshipApp({Key? key}) : super(key: key);
+  const ToolsOfWorshipApp({super.key});
 
   @override
   State<StatefulWidget> createState() {

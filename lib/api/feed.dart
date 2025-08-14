@@ -26,7 +26,7 @@ class ApiFeed {
     }
 
     final http.Response response = await http.post(
-      Uri.parse('${Properties.apiHost}/apis/Feed/List'),
+      Uri.parse('${Properties.apiHost}/api/feed/list'),
       headers: {
         HttpHeaders.authorizationHeader: 'Bearer $_authToken',
         HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
@@ -35,8 +35,8 @@ class ApiFeed {
     );
 
     if (response.statusCode == HttpStatus.ok) {
-      List<Map<String, dynamic>> jsonData = json.decode(response.body);
-      for (Map<String, dynamic> item in jsonData) {
+      List<dynamic> jsonData = json.decode(response.body);
+      for (dynamic item in jsonData) {
         try {
           yield Post.fromJson(item);
         } catch (_) {
@@ -65,7 +65,7 @@ class ApiFeed {
     };
 
     final http.Response response = await http.post(
-      Uri.parse('${Properties.apiHost}/apis/Feed/Post'),
+      Uri.parse('${Properties.apiHost}/api/feed/post'),
       headers: {
         HttpHeaders.authorizationHeader: 'Bearer $_authToken',
         HttpHeaders.contentTypeHeader: ContentType.json.mimeType,

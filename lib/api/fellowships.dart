@@ -13,7 +13,7 @@ class ApiFellowships {
 
   Stream<Fellowship> getList() async* {
     final http.Response response = await http.post(
-      Uri.parse('${Properties.apiHost}/apis/Fellowships/List'),
+      Uri.parse('${Properties.apiHost}/api/fellowships/list'),
       headers: {
         HttpHeaders.authorizationHeader: 'Bearer $_authToken',
         HttpHeaders.contentTypeHeader: ContentType.json.mimeType,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:string_validator/string_validator.dart';
+import 'package:tools_of_worship_client/providers/account_authentication.dart';
 
 import '../api/users.dart';
 import '../config/styling.dart';
@@ -187,9 +188,10 @@ class _SignupPageState extends State<SignupPage> {
       //   _error = 'Please complete the form to continue signup.';
       // });
     } else {
-      ApiUsers apiUsers = context.read<ApiUsers>();
+      AccountAuthentication accountAuth = context.read<AccountAuthentication>();
 
-      if (await apiUsers.signup(_displayName!, _email!, _password!)) {
+      if (await ApiUsers(accountAuth.authToken)
+          .signup(_displayName!, _email!, _password!)) {
         if (context.mounted) {
           Navigator.of(context).pop();
           showMessage(context,
